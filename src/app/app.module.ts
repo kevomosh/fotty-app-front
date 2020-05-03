@@ -23,7 +23,6 @@ const bootStrapModules = [NgbAlertModule];
     BrowserModule,
     AppRoutingModule,
     bootStrapModules,
-
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,

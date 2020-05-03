@@ -5,7 +5,7 @@ import {
   Router,
   RouterStateSnapshot,
 } from '@angular/router';
-import { Observable } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
@@ -18,25 +18,26 @@ export class AuthGuard implements CanActivate {
     activatedRoute: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean> {
-    return this.authService.logInStatus.pipe(
-      map((logInStatus) => {
+    return combineLatest([
+      this.authService.logInStatus,
+      this.authService.userRole,
+    ]).pipe(
+      map(([logInStatus, userRole]) => {
         if (!logInStatus) {
           this.router.navigate(['/login'], {
             queryParams: { returnUrl: state.url },
           });
           return false;
         }
-        this.authService.userRole.pipe(
-          map((userRole) => {
-            const roles = activatedRoute.data.roles as Array<string>;
-            const allowed: boolean = roles.includes(userRole);
-            if (!allowed) {
-              this.router.navigate(['/access-denied']);
-            }
 
-            return allowed;
-          })
-        );
+        const roles = activatedRoute.data.roles as Array<string>;
+
+        const allowed: boolean = roles.includes(userRole);
+        if (!allowed) {
+          this.router.navigate(['/access-denied']);
+        }
+
+        return allowed;
       })
     );
   }
