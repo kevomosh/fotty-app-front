@@ -6,6 +6,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { LoginInfo } from '../interfaces/LoginInfo';
+import { RegisterInfo } from '../interfaces/registerInfo';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,7 @@ export class AuthService {
 
   private baseUrl = environment.apiEndpoint;
   private logInUrl: string = `${this.baseUrl}/auth/login`;
+  private registerUrl: string = `${this.baseUrl}/auth/register`;
 
   private loginStatus$ = new BehaviorSubject<boolean>(this.checkLogInStatus());
   private userName$ = new BehaviorSubject<string>(
@@ -28,6 +30,10 @@ export class AuthService {
   private userId$ = new BehaviorSubject<number>(
     parseInt(localStorage.getItem('userId'))
   );
+
+  register(registerInfo: RegisterInfo): Observable<any> {
+    return this.http.post<any>(this.registerUrl, registerInfo);
+  }
 
   login(loginInfo: LoginInfo): Observable<any> {
     return this.http.post<any>(this.logInUrl, loginInfo).pipe(

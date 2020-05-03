@@ -9,6 +9,7 @@ import { AccessDeniedComponent } from './core/access-denied/access-denied.compon
 import { LoginComponent } from './core/login/login.component';
 import { AdminComponent } from './test/admin/admin.component';
 import { UserComponent } from './test/user/user.component';
+import { RegisterComponent } from './core/register/register.component';
 
 const bootStrapModules = [NgbAlertModule];
 @NgModule({
@@ -18,6 +19,7 @@ const bootStrapModules = [NgbAlertModule];
     UserComponent,
     AccessDeniedComponent,
     LoginComponent,
+    RegisterComponent,
   ],
   imports: [
     BrowserModule,
