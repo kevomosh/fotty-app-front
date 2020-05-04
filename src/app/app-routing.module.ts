@@ -6,8 +6,15 @@ import { RegisterComponent } from './core/register/register.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminComponent } from './test/admin/admin.component';
 import { UserComponent } from './test/user/user.component';
+import { ResultsComponent } from './user/results/results.component';
 
 const routes: Routes = [
+  {
+    path: 'results',
+    component: ResultsComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_USER', 'ROLE_ADMIN'] },
+  },
   {
     path: 'login',
     component: LoginComponent,

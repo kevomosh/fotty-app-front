@@ -27,6 +27,8 @@ export class AuthService {
     localStorage.getItem('userRole')
   );
 
+  private jwt$ = new BehaviorSubject<string>(localStorage.getItem('userName'));
+
   private userId$ = new BehaviorSubject<number>(
     parseInt(localStorage.getItem('userId'))
   );
@@ -54,6 +56,7 @@ export class AuthService {
           this.userId$.next(parseInt(localStorage.getItem('userId')));
           this.userName$.next(localStorage.getItem('userName'));
           this.userRole$.next(localStorage.getItem('userRole'));
+          this.jwt$.next(localStorage.getItem('jwt'));
         }
         return result;
       }),
@@ -85,6 +88,10 @@ export class AuthService {
 
   get userRole(): Observable<string> {
     return this.userRole$.asObservable();
+  }
+
+  get userJwt(): Observable<string> {
+    return this.jwt$.asObservable();
   }
 
   checkLogInStatus(): boolean {

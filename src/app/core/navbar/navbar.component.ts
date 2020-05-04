@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
@@ -8,13 +8,9 @@ import { AuthService } from 'src/app/services/auth.service';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css'],
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent {
   isMenuCollapsed = true;
-  // combined$: Observable<{
-  //   isLoggedIn: boolean;
-  //   userName: string;
-  //   userRole: string;
-  // }>;
+
   combined$ = combineLatest([
     this.authService.logInStatus,
     this.authService.userName,
@@ -32,6 +28,4 @@ export class NavbarComponent implements OnInit {
   onLogout() {
     this.authService.logout();
   }
-
-  ngOnInit(): void {}
 }

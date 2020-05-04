@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
@@ -13,8 +13,10 @@ import { AccessDeniedComponent } from './core/access-denied/access-denied.compon
 import { LoginComponent } from './core/login/login.component';
 import { NavbarComponent } from './core/navbar/navbar.component';
 import { RegisterComponent } from './core/register/register.component';
+import { JwtInterceptorService } from './services/jwt-interceptor.service';
 import { AdminComponent } from './test/admin/admin.component';
 import { UserComponent } from './test/user/user.component';
+import { ResultsComponent } from './user/results/results.component';
 
 const bootStrapModules = [NgbAlertModule, NgbCollapseModule, NgbDropdownModule];
 @NgModule({
@@ -26,6 +28,7 @@ const bootStrapModules = [NgbAlertModule, NgbCollapseModule, NgbDropdownModule];
     LoginComponent,
     RegisterComponent,
     NavbarComponent,
+    ResultsComponent,
   ],
   imports: [
     BrowserModule,
@@ -35,7 +38,13 @@ const bootStrapModules = [NgbAlertModule, NgbCollapseModule, NgbDropdownModule];
     ReactiveFormsModule,
     FormsModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptorService,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
