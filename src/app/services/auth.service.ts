@@ -61,6 +61,16 @@ export class AuthService {
     );
   }
 
+  logout() {
+    this.loginStatus$.next(false);
+    localStorage.removeItem('jwt');
+    localStorage.setItem('loginStatus', '0');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userName');
+    this.router.navigateByUrl('/login');
+  }
+
   get logInStatus(): Observable<boolean> {
     return this.loginStatus$.asObservable();
   }

@@ -18,6 +18,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   registerForm: FormGroup;
   errorMessage: string = '';
   groups$: Observable<GroupInfo[]> = this.groupService.getAllGroups();
+  // filteredGroups$: Observable<GroupInfo[]>;
 
   private destroy: Subject<void> = new Subject<void>();
   private destroy1: Subject<void> = new Subject<void>();
@@ -63,6 +64,19 @@ export class RegisterComponent implements OnInit, OnDestroy {
         validator: MustMatch('password', 'cpassword'),
       }
     );
+
+    // const formFroupChanges = this.registerForm
+    //   .get('groups')
+    //   .valueChanges.pipe(startWith(''));
+
+    // this.filteredGroups$ = combineLatest([formFroupChanges, this.groups$]).pipe(
+    //   map(([form, groups]) => {
+    //     console.log('form ' + form);
+    //     console.log('groups' + groups);
+    //     const formIdArr = form.map((elem) => elem.id);
+    //     return groups.filter((e) => formIdArr.includes(e.id));
+    //   })
+    // );
   }
 
   addGroupButtonClick(): void {
@@ -98,8 +112,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
           this.errorMessage = error.error.message;
         }
       );
-
-    console.log(registerInfo);
+    this.registerForm.reset();
   }
 
   private addGroupFormGroup(): FormGroup {

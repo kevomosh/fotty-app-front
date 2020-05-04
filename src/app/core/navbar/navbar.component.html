@@ -1,0 +1,80 @@
+<ng-container *ngIf="combined$ | async as combined">
+  <nav class="navbar navbar-expand-md navbar-dark bg-info">
+    <a
+      class="navbar-brand ml-1 text-white"
+      asp-area=""
+      asp-controller="Home"
+      asp-action="Index"
+      >{{ combined.userName }}</a
+    >
+    <ng-container *ngIf="combined.isLoggedIn">
+      <button
+        class="navbar-toggler d-lg-none ml-auto text-white"
+        type="button"
+        (click)="isMenuCollapsed = !isMenuCollapsed"
+        [attr.aria-expanded]="!isMenuCollapsed"
+        aria-label="Toggle navigation"
+        aria-controls="navbarSupportedContent"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div [ngbCollapse]="isMenuCollapsed" class="navbar-collapse collapse">
+        <ul class="navbar-nav flex-grow-2 ml-auto">
+          <li
+            ngbDropdown
+            *ngIf="combined.userRole === 'ROLE_ADMIN'"
+            class="nav-item dropdown"
+          >
+            <a
+              ngbDropdownToggle
+              class="nav-link dropdown-toggle text-white"
+              href="#"
+              id="navbarDropdown"
+              role="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              Admin
+            </a>
+            <div
+              ngbDropdownMenu
+              class="dropdown-menu"
+              aria-labelledby="navbarDropdown"
+            >
+              <a ngbDropdownItem class="dropdown-item" href="#">Action</a>
+              <a ngbDropdownItem class="dropdown-item" href="#"
+                >Another action</a
+              >
+
+              <a ngbDropdownItem class="dropdown-item" href="#"
+                >Something else here</a
+              >
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link ml-1 text-white" (click)="isMenuCollapsed = true"
+              >Tip Now</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link ml-1 text-white" (click)="isMenuCollapsed = true"
+              >Results</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link ml-1 text-white" (click)="isMenuCollapsed = true"
+              >Weekly Picks</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-primary text-white ml-1" (click)="onLogout()"
+              >Logout</a
+            >
+          </li>
+        </ul>
+      </div>
+    </ng-container>
+  </nav>
+</ng-container>

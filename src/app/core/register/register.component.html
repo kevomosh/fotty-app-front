@@ -26,6 +26,16 @@
                   class="text-danger"
                   >Name is required</span
                 >
+                <span
+                  *ngIf="registerForm.get('name').hasError('minlength')"
+                  class="text-danger"
+                  >Minimum 5 characters required</span
+                >
+                <span
+                  *ngIf="registerForm.get('name').hasError('maxlength')"
+                  class="text-danger"
+                  >Maximum of 20 characters allowed</span
+                >
               </div>
             </div>
             <div class="form-group">
@@ -119,8 +129,12 @@
                 <div class="row">
                   <div class="col-10">
                     <div class="form-group">
-                      <select class="custom-select" [id]="'group' + i">
-                        <option selected [ngValue]="null">Choose...</option>
+                      <select
+                        class="custom-select"
+                        formControlName="id"
+                        [id]="'group' + i"
+                      >
+                        <option selected [value]="null">Choose...</option>
                         <option
                           *ngFor="let payload of groups$ | async"
                           [value]="payload.id"

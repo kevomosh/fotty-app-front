@@ -2,16 +2,21 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbAlertModule,
+  NgbCollapseModule,
+  NgbDropdownModule,
+} from '@ng-bootstrap/ng-bootstrap';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AccessDeniedComponent } from './core/access-denied/access-denied.component';
 import { LoginComponent } from './core/login/login.component';
+import { NavbarComponent } from './core/navbar/navbar.component';
+import { RegisterComponent } from './core/register/register.component';
 import { AdminComponent } from './test/admin/admin.component';
 import { UserComponent } from './test/user/user.component';
-import { RegisterComponent } from './core/register/register.component';
 
-const bootStrapModules = [NgbAlertModule];
+const bootStrapModules = [NgbAlertModule, NgbCollapseModule, NgbDropdownModule];
 @NgModule({
   declarations: [
     AppComponent,
@@ -20,6 +25,7 @@ const bootStrapModules = [NgbAlertModule];
     AccessDeniedComponent,
     LoginComponent,
     RegisterComponent,
+    NavbarComponent,
   ],
   imports: [
     BrowserModule,
