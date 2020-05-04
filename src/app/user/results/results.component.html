@@ -1,32 +1,36 @@
-<input
-  (keyup)="updateFilter($event)"
-  type="text"
-  class="form-control my-2"
-  placeholder="Search User By Name"
-/>
+<ng-container *ngIf="combined$ | async as combined">
+  <input
+    (keyup)="updateFilter($event)"
+    type="text"
+    class="form-control my-2"
+    placeholder="Search User By Name"
+  />
 
-<table class="table shadow p-3 mb-5 bg-white table-striped">
-  <thead>
-    <tr>
-      <td>Position</td>
-      <td>
-        Name
-      </td>
+  <h4 class="text-center my-2">{{ combined.weekNumberString }}</h4>
 
-      <td>
-        Lastweek
-      </td>
-      <td>
-        Score
-      </td>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let user of allResults">
-      <td>{{ user.position }}</td>
-      <td>{{ user.name }}</td>
-      <td>{{ user.previousWeeksScore }}</td>
-      <td>{{ user.totalScore }}</td>
-    </tr>
-  </tbody>
-</table>
+  <table class="table shadow p-3 mb-5 bg-white table-striped">
+    <thead>
+      <tr>
+        <td>Position</td>
+        <td>
+          Name
+        </td>
+
+        <td>
+          Lastweek
+        </td>
+        <td>
+          Score
+        </td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of combined.filteredUsers">
+        <td>{{ user.position }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.previousWeeksScore }}</td>
+        <td>{{ user.totalScore }}</td>
+      </tr>
+    </tbody>
+  </table>
+</ng-container>
