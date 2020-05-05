@@ -1,0 +1,84 @@
+<div *ngIf="stream$ | async as currentWeek; else loading" class="container">
+  <h3 class="text-center">Tips For Round {{ currentWeek.weekNumber }}</h3>
+  <h6 class="text-center">
+    Deadline is at
+    {{ currentWeek.deadLineInstant | date: "dd-MM-yyyy HH:mm:ss" }}
+  </h6>
+
+  <div *ngIf="!currentWeek.beforeDeadLine" class="text-center">
+    <div class="alert alert-danger">
+      Its past the deadline. No more picks allowed.
+    </div>
+    <button
+      class="btn btn-danger mb-1"
+      [routerLink]="['/picks', currentWeek.weekNumber]"
+    >
+      Weekly Picks
+    </button>
+  </div>
+
+  <form [formGroup]="pickForm" (ngSubmit)="onSubmit()">
+    <div
+      formArrayName="teamsSelected"
+      *ngFor="let pick of controls; let i = index"
+    >
+      <div formGroupName="{{ i }}">
+        <div class="card my-2 custom-btns">
+          <div class="row btn-group btn-group-toggle" ngbRadioGroup>
+            <div class="col-5 text-center">
+              <label ngbButtonLabel class="btn full-wheight btn-light">
+                <input
+                  ngbButton
+                  type="radio"
+                  formControlName="team"
+                  value="{{ pick.get('homeTeam').value }}"
+                />
+                {{ pick.get("homeTeam").value }}
+              </label>
+            </div>
+            <div class="col-2 text-center">
+              <div
+                [style.backgroundImage]="
+                  'url(../../../../assets/images/vs.png)'
+                "
+                class="thumbnail mx-auto"
+              ></div>
+            </div>
+            <div class="col-5 text-center">
+              <label ngbButtonLabel class="btn full-wheight btn-light">
+                <input
+                  ngbButton
+                  type="radio"
+                  formControlName="team"
+                  value="{{ pick.get('awayTeam').value }}"
+                />
+                {{ pick.get("awayTeam").value }}</label
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button
+      class="btn btn-primary btn-block my-3"
+      [disabled]="pickForm.invalid || !currentWeek.beforeDeadLine"
+    >
+      Submit
+    </button>
+  </form>
+  <div class="text-center">
+    <small
+      >If you get a perfect score in a week with 8 games you will earn an extra
+      point</small
+    >
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="d-flex justify-content-center my-5">
+    <div class="spinner-border text-info" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+</ng-template>

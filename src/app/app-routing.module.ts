@@ -6,12 +6,26 @@ import { RegisterComponent } from './core/register/register.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminComponent } from './test/admin/admin.component';
 import { UserComponent } from './test/user/user.component';
+import { MakePickComponent } from './user/make-pick/make-pick.component';
+import { PicksComponent } from './user/picks/picks.component';
 import { ResultsComponent } from './user/results/results.component';
 
 const routes: Routes = [
   {
+    path: 'picks/:weekNumber',
+    component: PicksComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_USER', 'ROLE_ADMIN'] },
+  },
+  {
     path: 'results',
     component: ResultsComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_USER', 'ROLE_ADMIN'] },
+  },
+  {
+    path: 'make-pick',
+    component: MakePickComponent,
     canActivate: [AuthGuard],
     data: { roles: ['ROLE_USER', 'ROLE_ADMIN'] },
   },

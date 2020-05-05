@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import {
   NgbAlertModule,
+  NgbButtonsModule,
   NgbCollapseModule,
   NgbDropdownModule,
 } from '@ng-bootstrap/ng-bootstrap';
@@ -16,9 +17,16 @@ import { RegisterComponent } from './core/register/register.component';
 import { JwtInterceptorService } from './services/jwt-interceptor.service';
 import { AdminComponent } from './test/admin/admin.component';
 import { UserComponent } from './test/user/user.component';
+import { MakePickComponent } from './user/make-pick/make-pick.component';
 import { ResultsComponent } from './user/results/results.component';
+import { PicksComponent } from './user/picks/picks.component';
 
-const bootStrapModules = [NgbAlertModule, NgbCollapseModule, NgbDropdownModule];
+const bootStrapModules = [
+  NgbAlertModule,
+  NgbCollapseModule,
+  NgbDropdownModule,
+  NgbButtonsModule,
+];
 @NgModule({
   declarations: [
     AppComponent,
@@ -29,6 +37,8 @@ const bootStrapModules = [NgbAlertModule, NgbCollapseModule, NgbDropdownModule];
     RegisterComponent,
     NavbarComponent,
     ResultsComponent,
+    MakePickComponent,
+    PicksComponent,
   ],
   imports: [
     BrowserModule,
