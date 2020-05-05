@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { Component } from '@angular/core';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { GroupInfo } from 'src/app/interfaces/groupInfo';
+import { UserResultInfo } from 'src/app/interfaces/userResultInfo';
 import { AuthService } from 'src/app/services/auth.service';
 import { WeekService } from 'src/app/services/week.service';
 
@@ -10,10 +11,14 @@ import { WeekService } from 'src/app/services/week.service';
   templateUrl: './results.component.html',
   styleUrls: ['./results.component.css'],
 })
-export class ResultsComponent implements OnInit, OnDestroy {
+export class ResultsComponent {
   userGroups: GroupInfo[] = [];
   private inputSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
+  );
+
+  private groupSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
+    'AllGroups'
   );
 
   constructor(
@@ -36,16 +41,10 @@ export class ResultsComponent implements OnInit, OnDestroy {
         })
       );
 
-      const filteredUsers$ = combineLatest([
+      const filteredUsers$ = this.createFilter(
         userResults,
         this.inputSubject.asObservable(),
-      ]).pipe(
-        map(([users, filterString]) =>
-          users.filter(
-            (user) =>
-              user.name.toLowerCase().indexOf(filterString.toLowerCase()) !== -1
-          )
-        )
+        this.groupSubject.asObservable()
       );
 
       return combineLatest([filteredUsers$, weekNumberString$]).pipe(
@@ -57,11 +56,33 @@ export class ResultsComponent implements OnInit, OnDestroy {
     })
   );
 
+  private createFilter(
+    userResults$: Observable<UserResultInfo[]>,
+    filterString$: Observable<string>,
+    groupName$: Observable<string>
+  ) {
+    return combineLatest([userResults$, filterString$, groupName$]).pipe(
+      map(([users, filterString, groupName]) => {
+        const filteredUsersByName = users.filter(
+          (user) =>
+            user.name.toLowerCase().indexOf(filterString.toLowerCase()) !== -1
+        );
+        if (groupName === 'AllGroups') {
+          return filteredUsersByName;
+        } else {
+          return filteredUsersByName.filter((uz) =>
+            uz.groups.some((g) => g.name === groupName)
+          );
+        }
+      })
+    );
+  }
+
   updateFilter(event: any) {
     this.inputSubject.next(event.target.value.toLowerCase());
   }
 
-  ngOnInit(): void {}
-
-  ngOnDestroy() {}
+  filterGroup(groupName: string) {
+    this.groupSubject.next(groupName);
+  }
 }

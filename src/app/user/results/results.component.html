@@ -1,10 +1,29 @@
-<ng-container *ngIf="combined$ | async as combined">
+<div *ngIf="combined$ | async as combined" class="container">
   <input
     (keyup)="updateFilter($event)"
     type="text"
     class="form-control my-2"
     placeholder="Search User By Name"
   />
+  <ng-container *ngIf="userGroups.length > 1">
+    <ul class="list-group list-group-horizontal mt-1 mb-2">
+      <li
+        type="button"
+        class="list-group-item list-group-item-action text-center"
+        (click)="filterGroup('AllGroups')"
+      >
+        All Groups
+      </li>
+      <li
+        type="button"
+        class="list-group-item list-group-item-action text-center"
+        *ngFor="let group of userGroups"
+        (click)="filterGroup(group.name)"
+      >
+        {{ group.name }}
+      </li>
+    </ul>
+  </ng-container>
 
   <h4 class="text-center my-2">{{ combined.weekNumberString }}</h4>
 
@@ -33,4 +52,4 @@
       </tr>
     </tbody>
   </table>
-</ng-container>
+</div>
