@@ -1,10 +1,5 @@
 <div *ngIf="combined$ | async as combined; else loading" class="container">
-  <input
-    (keyup)="updateFilter($event)"
-    type="text"
-    class="form-control my-2"
-    placeholder="Search User By Name"
-  />
+  <app-filter></app-filter>
   <ng-container *ngIf="userGroups.length > 1">
     <ul class="list-group list-group-horizontal mt-1 mb-2">
       <li

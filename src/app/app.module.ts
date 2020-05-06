@@ -20,6 +20,7 @@ import { UserComponent } from './test/user/user.component';
 import { MakePickComponent } from './user/make-pick/make-pick.component';
 import { ResultsComponent } from './user/results/results.component';
 import { PicksComponent } from './user/picks/picks.component';
+import { FilterComponent } from './helper/filter/filter.component';
 
 const bootStrapModules = [
   NgbAlertModule,
@@ -39,6 +40,7 @@ const bootStrapModules = [
     ResultsComponent,
     MakePickComponent,
     PicksComponent,
+    FilterComponent,
   ],
   imports: [
     BrowserModule,
