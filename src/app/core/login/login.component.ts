@@ -25,8 +25,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    //TODO change return url route to appropriate route
-    this.returnUrl = this.activeRoute.snapshot.queryParams['returnUrl'] || '/';
+    this.returnUrl =
+      this.activeRoute.snapshot.queryParams['returnUrl'] || '/results';
 
     // TODO CHECK IF TOKEN IN LOCALSTORAGE THEN REDIRECT TO HOME ROUTE;
     this.loginForm = this.fb.group({

@@ -3,9 +3,10 @@ import { TeamWonOrSelected } from './teamWonOrSelected';
 
 export interface WeekInfo {
   weekNumber: number;
-  scoresUpdated: boolean;
+  scoresUpdated?: boolean;
   teamsThatWon?: TeamWonOrSelected[];
   sortedMatchesToBePlayed?: NewMatchToBePlayed[];
   beforeDeadLine?: boolean;
   deadLineInstant?: string;
+  filteredMatches?: NewMatchToBePlayed[];
 }

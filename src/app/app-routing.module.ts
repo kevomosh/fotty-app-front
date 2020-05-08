@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AddGamesComponent } from './admin/add-games/add-games.component';
+import { PostResultsComponent } from './admin/post-results/post-results.component';
 import { AccessDeniedComponent } from './core/access-denied/access-denied.component';
 import { LoginComponent } from './core/login/login.component';
 import { RegisterComponent } from './core/register/register.component';
@@ -11,6 +13,18 @@ import { PicksComponent } from './user/picks/picks.component';
 import { ResultsComponent } from './user/results/results.component';
 
 const routes: Routes = [
+  {
+    path: 'admin/postResults',
+    component: PostResultsComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_ADMIN'] },
+  },
+  {
+    path: 'admin/addGames',
+    component: AddGamesComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_ADMIN'] },
+  },
   {
     path: 'picks/:weekNumber',
     component: PicksComponent,

@@ -6,27 +6,31 @@ import {
   NgbAlertModule,
   NgbButtonsModule,
   NgbCollapseModule,
+  NgbDatepickerModule,
   NgbDropdownModule,
 } from '@ng-bootstrap/ng-bootstrap';
+import { AddGamesComponent } from './admin/add-games/add-games.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AccessDeniedComponent } from './core/access-denied/access-denied.component';
 import { LoginComponent } from './core/login/login.component';
 import { NavbarComponent } from './core/navbar/navbar.component';
 import { RegisterComponent } from './core/register/register.component';
+import { FilterComponent } from './helper/filter/filter.component';
 import { JwtInterceptorService } from './services/jwt-interceptor.service';
 import { AdminComponent } from './test/admin/admin.component';
 import { UserComponent } from './test/user/user.component';
 import { MakePickComponent } from './user/make-pick/make-pick.component';
-import { ResultsComponent } from './user/results/results.component';
 import { PicksComponent } from './user/picks/picks.component';
-import { FilterComponent } from './helper/filter/filter.component';
+import { ResultsComponent } from './user/results/results.component';
+import { PostResultsComponent } from './admin/post-results/post-results.component';
 
 const bootStrapModules = [
   NgbAlertModule,
   NgbCollapseModule,
   NgbDropdownModule,
   NgbButtonsModule,
+  NgbDatepickerModule,
 ];
 @NgModule({
   declarations: [
@@ -41,6 +45,8 @@ const bootStrapModules = [
     MakePickComponent,
     PicksComponent,
     FilterComponent,
+    AddGamesComponent,
+    PostResultsComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,16 @@
+.color-change {
+  background-color: #2eb82e;
+}
+
+.color-change-title {
+  background-color: white;
+  color: #2eb82e;
+}
+.group-picked {
+  background-color: #809fff;
+}
+
+.spinner-border {
+  width: 4rem;
+  height: 4rem;
+}

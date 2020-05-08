@@ -1,33 +1,81 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { GroupInfo } from '../interfaces/groupInfo';
+import { UserResultInfo } from '../interfaces/userResultInfo';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FilterService {
-  private inputSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
+  private inputSubject$: BehaviorSubject<string> = new BehaviorSubject<string>(
     ''
   );
+  private userGroups$: BehaviorSubject<GroupInfo[]> = new BehaviorSubject([]);
 
-  private groupSubject: BehaviorSubject<string> = new BehaviorSubject<string>(
+  private groupSubject$: BehaviorSubject<string> = new BehaviorSubject<string>(
     'AllGroups'
   );
 
   constructor() {}
 
+  updateUserGroups(allUsers: any[]) {
+    const username = localStorage.getItem('userName');
+    const groups = allUsers.find((user) => user.name === username).groups;
+    this.userGroups$.next(groups);
+  }
+
+  clearAllFilterInputs() {
+    this.inputSubject$.next('');
+    this.userGroups$.next([]);
+    this.groupSubject$.next('AllGroups');
+  }
+
   updateInputFilter(event: any) {
-    this.inputSubject.next(event.target.value.toLowerCase());
+    this.inputSubject$.next(event.target.value.toLowerCase());
+  }
+
+  updateInputFilterForm(event: any) {
+    this.inputSubject$.next(event);
   }
 
   updateGroupFilter(groupName: string) {
-    this.groupSubject.next(groupName);
+    this.groupSubject$.next(groupName);
   }
 
   getNameStringFilter(): Observable<string> {
-    return this.inputSubject.asObservable();
+    return this.inputSubject$.asObservable();
   }
 
   getGroupStringFilter(): Observable<string> {
-    return this.groupSubject.asObservable();
+    return this.groupSubject$.asObservable();
+  }
+
+  getUserGroups(): Observable<GroupInfo[]> {
+    return this.userGroups$.asObservable();
+  }
+
+  createFilter(
+    userResults$: Observable<UserResultInfo[]>
+  ): Observable<UserResultInfo[]> {
+    return combineLatest([
+      userResults$,
+      this.getNameStringFilter(),
+      this.getGroupStringFilter(),
+    ]).pipe(
+      map(([users, filterString, groupName]) => {
+        const filteredUsersByName = users.filter(
+          (user) =>
+            user.name.toLowerCase().indexOf(filterString.toLowerCase()) !== -1
+        );
+        if (groupName === 'AllGroups') {
+          return filteredUsersByName;
+        } else {
+          return filteredUsersByName.filter((uz) =>
+            uz.groups.some((g) => g.name === groupName)
+          );
+        }
+      })
+    );
   }
 }

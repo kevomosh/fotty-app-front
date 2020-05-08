@@ -1,6 +1,28 @@
-<input
-  (keyup)="updateFilter($event)"
-  type="text"
-  class="form-control my-2"
-  placeholder="Search User By Name"
-/>
+<div class="container" *ngIf="combinedStream$ | async as stream">
+  <input
+    (keyup)="updateFilter($event)"
+    type="text"
+    class="form-control my-2"
+    placeholder="Search User By Name"
+  />
+
+  <ng-container *ngIf="stream.userGroups.length > 1">
+    <ul class="list-group list-group-horizontal mt-1 mb-2">
+      <li
+        type="button"
+        class="list-group-item list-group-item-action text-center"
+        (click)="filterGroup('AllGroups')"
+      >
+        All Groups
+      </li>
+      <li
+        type="button"
+        class="list-group-item list-group-item-action text-center"
+        *ngFor="let group of stream.userGroups"
+        (click)="filterGroup(group.name)"
+      >
+        {{ group.name }}
+      </li>
+    </ul>
+  </ng-container>
+</div>

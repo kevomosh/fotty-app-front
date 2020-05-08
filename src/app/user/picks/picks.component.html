@@ -1,1 +1,50 @@
-<p>picks works!</p>
+<div *ngIf="stream$ | async as stream">
+  <app-filter></app-filter>
+  <div class="shadow p-3 mb-5 bg-white rounded my-2">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <th>Name</th>
+          <ng-container
+            *ngFor="let match of stream.week.sortedMatchesToBePlayed"
+          >
+            <th>
+              <div
+                class="text-center"
+                [ngClass]="{
+                  'color-change-title': colorTitleIfHomeCorrect(match)
+                }"
+              >
+                {{ match.homeTeam }}
+              </div>
+              <div class="text-center small font-weight-bold">vs</div>
+              <div
+                class="text-center"
+                [ngClass]="{
+                  'color-change-title': colorTitleIfAwayCorrect(match)
+                }"
+              >
+                {{ match.awayTeam }}
+              </div>
+            </th>
+          </ng-container>
+          <th>Score</th>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of stream.filteredUsers">
+            <td class="font-italic">{{ user.name }}</td>
+            <ng-container *ngFor="let game of user.teamsSelected">
+              <td
+                class="text-center"
+                [ngClass]="{ 'color-change': colorIfCorrect(game) }"
+              >
+                {{ game.team }}
+              </td>
+            </ng-container>
+            <td>{{ user.weeksScore }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,5 @@
 import { GroupInfo } from './groupInfo';
+import { TeamWonOrSelected } from './teamWonOrSelected';
 
 export interface UserResultInfo {
   name?: string;
@@ -6,4 +7,6 @@ export interface UserResultInfo {
   totalScore?: number;
   previousWeeksScore?: number;
   position?: number;
+  teamsSelected?: TeamWonOrSelected[];
+  weeksScore?: number;
 }

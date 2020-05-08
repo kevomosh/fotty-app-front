@@ -1,0 +1,64 @@
+<div *ngIf="stream$ | async as currentWeek; else loading" class="container">
+  <h3 class="text-center">
+    Post Results For Round {{ currentWeek.weekNumber }}
+  </h3>
+
+  <form [formGroup]="resultForm" (ngSubmit)="onSubmit()">
+    <div
+      formArrayName="weeksResult"
+      *ngFor="let pick of controls; let i = index"
+    >
+      <div formGroupName="{{ i }}">
+        <div class="card my-2 custom-btns">
+          <div class="row btn-group btn-group-toggle" ngbRadioGroup>
+            <div class="col-5 text-center">
+              <label ngbButtonLabel class="btn full-wheight btn-light">
+                <input
+                  ngbButton
+                  type="radio"
+                  formControlName="team"
+                  value="{{ pick.get('homeTeam').value }}"
+                />
+                {{ pick.get("homeTeam").value }}
+              </label>
+            </div>
+            <div class="col-2 text-center">
+              <div
+                [style.backgroundImage]="
+                  'url(../../../../assets/images/vs.png)'
+                "
+                class="thumbnail mx-auto"
+              ></div>
+            </div>
+            <div class="col-5 text-center">
+              <label ngbButtonLabel class="btn full-wheight btn-light">
+                <input
+                  ngbButton
+                  type="radio"
+                  formControlName="team"
+                  value="{{ pick.get('awayTeam').value }}"
+                />
+                {{ pick.get("awayTeam").value }}</label
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button
+      class="btn btn-primary btn-block my-3"
+      [disabled]="currentWeek.beforeDeadLine"
+    >
+      Submit
+    </button>
+  </form>
+</div>
+
+<ng-template #loading>
+  <div class="d-flex justify-content-center my-5">
+    <div class="spinner-border text-info" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+</ng-template>

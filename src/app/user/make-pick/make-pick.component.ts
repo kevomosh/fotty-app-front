@@ -88,7 +88,7 @@ export class MakePickComponent implements OnInit, OnDestroy {
     this.pickService
       .createOrUpdatePick(pickInfo)
       .pipe(takeUntil(this.destroy))
-      .subscribe(() => this.router.navigate(['/pick', this.weekNumber]));
+      .subscribe(() => this.router.navigate(['/picks', this.weekNumber]));
   }
 
   ngOnDestroy() {

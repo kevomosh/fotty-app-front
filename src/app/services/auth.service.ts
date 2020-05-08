@@ -71,6 +71,8 @@ export class AuthService {
     localStorage.removeItem('userId');
     localStorage.removeItem('userRole');
     localStorage.removeItem('userName');
+    localStorage.removeItem('userGroups');
+    localStorage.removeItem('weekNumber');
     this.router.navigateByUrl('/login');
   }
 
