@@ -1,5 +1,5 @@
 .color-change {
-  background-color: #2eb82e;
+  background-color: #66cc66;
 }
 
 .color-change-title {
@@ -13,4 +13,11 @@
 .spinner-border {
   width: 4rem;
   height: 4rem;
+}
+
+th:first-child,
+td:first-child {
+  position: sticky;
+  left: 0px;
+  background-color: #e6e6e6;
 }

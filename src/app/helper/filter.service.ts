@@ -19,12 +19,6 @@ export class FilterService {
 
   constructor() {}
 
-  updateUserGroups(allUsers: any[]) {
-    const username = localStorage.getItem('userName');
-    const groups = allUsers.find((user) => user.name === username).groups;
-    this.userGroups$.next(groups);
-  }
-
   clearAllFilterInputs() {
     this.inputSubject$.next('');
     this.userGroups$.next([]);
@@ -37,6 +31,10 @@ export class FilterService {
 
   updateInputFilterForm(event: any) {
     this.inputSubject$.next(event);
+  }
+
+  getGroupSubject(): Observable<string> {
+    return this.groupSubject$.asObservable();
   }
 
   updateGroupFilter(groupName: string) {

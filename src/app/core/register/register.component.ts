@@ -64,19 +64,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
         validator: MustMatch('password', 'cpassword'),
       }
     );
-
-    // const formFroupChanges = this.registerForm
-    //   .get('groups')
-    //   .valueChanges.pipe(startWith(''));
-
-    // this.filteredGroups$ = combineLatest([formFroupChanges, this.groups$]).pipe(
-    //   map(([form, groups]) => {
-    //     console.log('form ' + form);
-    //     console.log('groups' + groups);
-    //     const formIdArr = form.map((elem) => elem.id);
-    //     return groups.filter((e) => formIdArr.includes(e.id));
-    //   })
-    // );
   }
 
   addGroupButtonClick(): void {
@@ -106,13 +93,13 @@ export class RegisterComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy1))
       .subscribe(
         () => {
+          this.registerForm.reset();
           this.router.navigateByUrl('/login');
         },
         (error) => {
           this.errorMessage = error.error.message;
         }
       );
-    this.registerForm.reset();
   }
 
   private addGroupFormGroup(): FormGroup {

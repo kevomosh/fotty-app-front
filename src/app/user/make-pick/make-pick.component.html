@@ -5,7 +5,7 @@
     {{ currentWeek.deadLineInstant | date: "dd-MM-yyyy HH:mm:ss" }}
   </h6>
 
-  <div *ngIf="!currentWeek.beforeDeadLine" class="text-center">
+  <div *ngIf="!currentWeek.beforeDeadLine; else before" class="text-center">
     <div class="alert alert-danger">
       Its past the deadline. No more picks allowed.
     </div>
@@ -16,63 +16,64 @@
       Weekly Picks
     </button>
   </div>
-
-  <form [formGroup]="pickForm" (ngSubmit)="onSubmit()">
-    <div
-      formArrayName="teamsSelected"
-      *ngFor="let pick of controls; let i = index"
-    >
-      <div formGroupName="{{ i }}">
-        <div class="card my-2 custom-btns">
-          <div class="row btn-group btn-group-toggle" ngbRadioGroup>
-            <div class="col-5 text-center">
-              <label ngbButtonLabel class="btn full-wheight btn-light">
-                <input
-                  ngbButton
-                  type="radio"
-                  formControlName="team"
-                  value="{{ pick.get('homeTeam').value }}"
-                />
-                {{ pick.get("homeTeam").value }}
-              </label>
-            </div>
-            <div class="col-2 text-center">
-              <div
-                [style.backgroundImage]="
-                  'url(../../../../assets/images/vs.png)'
-                "
-                class="thumbnail mx-auto"
-              ></div>
-            </div>
-            <div class="col-5 text-center">
-              <label ngbButtonLabel class="btn full-wheight btn-light">
-                <input
-                  ngbButton
-                  type="radio"
-                  formControlName="team"
-                  value="{{ pick.get('awayTeam').value }}"
-                />
-                {{ pick.get("awayTeam").value }}</label
-              >
+  <ng-template #before>
+    <form [formGroup]="pickForm" (ngSubmit)="onSubmit()">
+      <div
+        formArrayName="teamsSelected"
+        *ngFor="let pick of controls; let i = index"
+      >
+        <div formGroupName="{{ i }}">
+          <div class="card my-2 custom-btns">
+            <div class="row btn-group btn-group-toggle" ngbRadioGroup>
+              <div class="col-5 text-center">
+                <label ngbButtonLabel class="btn full-wheight btn-light">
+                  <input
+                    ngbButton
+                    type="radio"
+                    formControlName="team"
+                    value="{{ pick.get('homeTeam').value }}"
+                  />
+                  {{ pick.get("homeTeam").value }}
+                </label>
+              </div>
+              <div class="col-2 text-center">
+                <div
+                  [style.backgroundImage]="
+                    'url(../../../../assets/images/vs.png)'
+                  "
+                  class="thumbnail mx-auto"
+                ></div>
+              </div>
+              <div class="col-5 text-center">
+                <label ngbButtonLabel class="btn full-wheight btn-light">
+                  <input
+                    ngbButton
+                    type="radio"
+                    formControlName="team"
+                    value="{{ pick.get('awayTeam').value }}"
+                  />
+                  {{ pick.get("awayTeam").value }}</label
+                >
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <button
-      class="btn btn-primary btn-block my-3"
-      [disabled]="pickForm.invalid || !currentWeek.beforeDeadLine"
-    >
-      Submit
-    </button>
-  </form>
-  <div class="text-center">
-    <small
-      >If you get a perfect score in a week with 8 games you will earn an extra
-      point</small
-    >
-  </div>
+      <button
+        class="btn btn-primary btn-block my-3"
+        [disabled]="pickForm.invalid"
+      >
+        Submit
+      </button>
+    </form>
+    <div class="text-center">
+      <small
+        >If you get a perfect score in a week with 8 games you will earn an
+        extra point</small
+      >
+    </div>
+  </ng-template>
 </div>
 
 <ng-template #loading>

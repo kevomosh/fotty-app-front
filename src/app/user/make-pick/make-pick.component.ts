@@ -1,4 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -13,6 +18,7 @@ import { WeekService } from 'src/app/services/week.service';
 @Component({
   selector: 'app-make-pick',
   templateUrl: './make-pick.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./make-pick.component.css'],
 })
 export class MakePickComponent implements OnInit, OnDestroy {

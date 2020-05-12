@@ -1,4 +1,4 @@
-<div class="container" *ngIf="combinedStream$ | async as stream">
+<div *ngIf="combinedStream$ | async as stream">
   <input
     (keyup)="updateFilter($event)"
     type="text"
@@ -11,6 +11,7 @@
       <li
         type="button"
         class="list-group-item list-group-item-action text-center"
+        [ngClass]="{ 'color-change': stream.pickedGroup === 'AllGroups' }"
         (click)="filterGroup('AllGroups')"
       >
         All Groups
@@ -20,6 +21,9 @@
         class="list-group-item list-group-item-action text-center"
         *ngFor="let group of stream.userGroups"
         (click)="filterGroup(group.name)"
+        [ngClass]="{
+          'color-change': group.name === stream.pickedGroup
+        }"
       >
         {{ group.name }}
       </li>

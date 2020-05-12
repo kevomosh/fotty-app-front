@@ -1,9 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, ReplaySubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { switchMap, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { UserResultInfo } from '../interfaces/userResultInfo';
 import { WeekInfo } from '../interfaces/weekInfo';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,21 +20,34 @@ export class WeekService {
   private filteredMatchesUrl: string = `${this.baseUrl}/week/filteredMatchesToBePlayed`;
   private getWeekByWeekNumberUrl: string = `${this.baseUrl}/week/getWeekByWeekNumber/`;
   private addResultsUpdateScoreUrl: string = `${this.baseUrl}/week/addResultsUpdateScore`;
+  private updateTotalScoreUrl: string = `${this.baseUrl}/week/updateTotalScore/`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
-  private weekNumber$: ReplaySubject<number> = new ReplaySubject(1);
+  private weekNumber$ = new BehaviorSubject<number>(
+    parseInt(localStorage.getItem('weekNumber'))
+  );
 
-  getLatestResults(userId: number): Observable<UserResultInfo[]> {
-    return this.http.get<UserResultInfo[]>(this.getLatestResultsUrl + userId);
+  getLatestResults(): Observable<UserResultInfo[]> {
+    return this.authService.userId.pipe(
+      switchMap((userId) =>
+        this.http.get<UserResultInfo[]>(this.getLatestResultsUrl + userId)
+      )
+    );
   }
 
   get weekNumber(): Observable<number> {
     return this.weekNumber$.asObservable();
   }
 
+  updateTotalScore(weekNumber: number): Observable<any> {
+    return this.http.put<any>(this.updateTotalScoreUrl + weekNumber, {});
+  }
+
   getCurrentWeekNumber(): Observable<number> {
-    return this.http.get<number>(this.getCurrentWeekNumberUrl);
+    return this.http
+      .get<number>(this.getCurrentWeekNumberUrl)
+      .pipe(tap((no) => this.modifyWeekNumber(no)));
   }
 
   getFilteredMatches(): Observable<WeekInfo> {
@@ -43,7 +58,9 @@ export class WeekService {
   }
 
   getCurrentWeek(): Observable<WeekInfo> {
-    return this.http.get<WeekInfo>(this.getCurrentWeekUrl);
+    return this.http
+      .get<WeekInfo>(this.getCurrentWeekUrl)
+      .pipe(tap((wk) => this.modifyWeekNumber(wk.weekNumber)));
   }
 
   getWeekByWeekNumber(weekNumber: number): Observable<WeekInfo> {
@@ -56,5 +73,13 @@ export class WeekService {
 
   addResultsUpdateScore(weekinfo: WeekInfo): Observable<any> {
     return this.http.post<any>(this.addResultsUpdateScoreUrl, weekinfo);
+  }
+
+  private modifyWeekNumber(weekNumber: any) {
+    const numb = parseInt(localStorage.getItem('weekNumber'));
+    if (numb !== weekNumber) {
+      localStorage.setItem('weekNumber', weekNumber);
+      this.weekNumber$.next(weekNumber);
+    }
   }
 }

@@ -2,6 +2,9 @@
   <h3 class="text-center">
     Post Results For Round {{ currentWeek.weekNumber }}
   </h3>
+  <ng-container *ngIf="currentWeek.beforeDeadLine">
+    <h5 class="text-center">Have to wait till after deadline</h5>
+  </ng-container>
 
   <form [formGroup]="resultForm" (ngSubmit)="onSubmit()">
     <div
@@ -47,11 +50,22 @@
     </div>
 
     <button
+      *ngIf="currentWeek.filteredMatches.length > 0; else totalScore"
       class="btn btn-primary btn-block my-3"
       [disabled]="currentWeek.beforeDeadLine"
     >
       Submit
     </button>
+
+    <ng-template #totalScore>
+      <button
+        type="button"
+        class="btn btn-block btn-warning my-4"
+        (click)="updateTotalScore()"
+      >
+        Update Total Score
+      </button>
+    </ng-template>
   </form>
 </div>
 

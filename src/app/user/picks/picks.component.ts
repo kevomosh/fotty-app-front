@@ -1,22 +1,30 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { combineLatest } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { combineLatest, Observable, of, throwError } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { FilterService } from 'src/app/helper/filter.service';
 import { NewMatchToBePlayed } from 'src/app/interfaces/newMatchToBePlayed';
 import { TeamWonOrSelected } from 'src/app/interfaces/teamWonOrSelected';
+import { UserResultInfo } from 'src/app/interfaces/userResultInfo';
 import { PickService } from 'src/app/services/pick.service';
 import { WeekService } from 'src/app/services/week.service';
 
 @Component({
   selector: 'app-picks',
   templateUrl: './picks.component.html',
+  //changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./picks.component.css'],
 })
 export class PicksComponent implements OnInit {
   weekNumber: number;
-  errorNumber: number;
-  teamsThatWon: TeamWonOrSelected[] = [];
+  errorObject = null;
+  stream$: Observable<any>;
+
+  filteredUsers: UserResultInfo[] = [];
+  page = 1;
+  pageSize = 4;
+  collectionSize = this.filteredUsers.length;
+
   constructor(
     private pickService: PickService,
     private activeRoute: ActivatedRoute,
@@ -25,61 +33,102 @@ export class PicksComponent implements OnInit {
     private router: Router
   ) {}
 
-  stream$ = this.activeRoute.paramMap.pipe(
-    map((routeParam: ParamMap) => {
-      this.weekNumber = parseInt(routeParam.get('weekNumber'));
-      this.errorNumber = this.weekNumber - 1;
+  ngOnInit(): void {
+    this.stream$ = this.activeRoute.paramMap.pipe(
+      map((routeParam: ParamMap) => {
+        return parseInt(routeParam.get('weekNumber'));
+      }),
+      switchMap((weekNumber) => {
+        this.weekNumber = weekNumber;
 
-      return this.weekNumber;
-    }),
-    switchMap((weekNumber) => {
-      const allUsers$ = this.pickService
-        .getPicksForTheWeek(weekNumber)
-        .pipe(tap((users) => this.filterService.updateUserGroups(users)));
-      const week$ = this.weekService
-        .getWeekByWeekNumber(weekNumber)
-        .pipe(tap((week) => (this.teamsThatWon = week.teamsThatWon)));
-      const filteredUsers$ = this.filterService.createFilter(allUsers$);
+        const week$ = this.weekService.getWeekByWeekNumber(weekNumber);
 
-      return combineLatest([filteredUsers$, week$]).pipe(
-        map(([filteredUsers, week]) => ({
-          filteredUsers,
-          week,
-        }))
+        const allUsers$ = this.pickService.getPicksForTheWeek(weekNumber);
+        const filteredUsers$ = this.filterService
+          .createFilter(allUsers$)
+          .pipe(tap((users) => (this.filteredUsers = users)));
+
+        const currentWeekNumber$ = this.weekService.weekNumber;
+        const title$ = of('Picks For Round ' + weekNumber);
+        this.filterService.clearAllFilterInputs();
+
+        return combineLatest([
+          week$,
+          filteredUsers$,
+          currentWeekNumber$,
+          title$,
+        ]).pipe(
+          map(([week, filteredUsers, currentWeekNumber, title]) => ({
+            week,
+            filteredUsers,
+            currentWeekNumber,
+            title,
+          })),
+          catchError((error) => {
+            this.errorObject = error;
+            return throwError(error);
+          })
+        );
+      })
+    );
+  }
+
+  errorLoadWeekBefore(weekNumber: number) {
+    this.errorObject = null;
+    this.loadWeek(weekNumber);
+    this.ngOnInit();
+  }
+
+  loadWeek(weekNumber: number) {
+    this.router.navigate(['/picks', weekNumber]);
+  }
+
+  makePick() {
+    this.router.navigateByUrl('/make-pick');
+  }
+
+  colorIfCorrect(
+    team: TeamWonOrSelected,
+    teamsThatWon: TeamWonOrSelected[]
+  ): boolean {
+    if (teamsThatWon.length > 0) {
+      const z = teamsThatWon.find((e) => e.team === team.team);
+      if (z) return true;
+    }
+    return false;
+  }
+
+  colorTitleIfHomeCorrect(
+    team: NewMatchToBePlayed,
+    teamsThatWon: TeamWonOrSelected[]
+  ): boolean {
+    if (teamsThatWon.length > 0) {
+      const z = teamsThatWon.find((e) => e.team === team.homeTeam);
+      if (z) return true;
+    }
+    return false;
+  }
+  colorTitleIfAwayCorrect(
+    team: NewMatchToBePlayed,
+    teamsThatWon: TeamWonOrSelected[]
+  ): boolean {
+    if (teamsThatWon.length > 0) {
+      const z = teamsThatWon.find((e) => e.team === team.awayTeam);
+      if (z) return true;
+    }
+    return false;
+  }
+
+  get paginatedUsers(): UserResultInfo[] {
+    return this.filteredUsers
+      .map((user, i) => ({ id: i + 1, ...user }))
+      .slice(
+        (this.page - 1) * this.pageSize,
+        (this.page - 1) * this.pageSize + this.pageSize
       );
-    })
-  );
-
-  ngOnInit(): void {}
-
-  loadPreviousWeek() {
-    this.router.navigate(['/picks', this.weekNumber - 1]);
   }
 
-  loadFollowingWeek() {
-    this.router.navigate(['/picks', this.weekNumber - 1]);
-  }
-
-  colorIfCorrect(team: TeamWonOrSelected): boolean {
-    if (this.teamsThatWon.length > 0) {
-      const z = this.teamsThatWon.find((e) => e.team === team.team);
-      if (z) return true;
-    }
-    return false;
-  }
-
-  colorTitleIfHomeCorrect(team: NewMatchToBePlayed): boolean {
-    if (this.teamsThatWon.length > 0) {
-      const z = this.teamsThatWon.find((e) => e.team === team.homeTeam);
-      if (z) return true;
-    }
-    return false;
-  }
-  colorTitleIfAwayCorrect(team: NewMatchToBePlayed): boolean {
-    if (this.teamsThatWon.length > 0) {
-      const z = this.teamsThatWon.find((e) => e.team === team.awayTeam);
-      if (z) return true;
-    }
-    return false;
+  ngOnDestroy() {
+    this.filterService.clearAllFilterInputs();
   }
 }

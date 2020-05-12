@@ -17,6 +17,7 @@ export class PostResultsComponent implements OnInit, OnDestroy {
   weekNumber: number;
   controls: any;
   private destroy: Subject<void> = new Subject<void>();
+  private destroy1: Subject<void> = new Subject<void>();
   constructor(
     private weekService: WeekService,
     private fb: FormBuilder,
@@ -48,8 +49,6 @@ export class PostResultsComponent implements OnInit, OnDestroy {
       })),
     };
 
-    //console.log(weekInfo);
-
     this.weekService
       .addResultsUpdateScore(weekInfo)
       .pipe(takeUntil(this.destroy))
@@ -61,19 +60,20 @@ export class PostResultsComponent implements OnInit, OnDestroy {
           console.log('error occured' + error);
         }
       );
+  }
 
-    // this.weekService.addResultsUpdateScore(weekInfo).subscribe(
-    //   (r) => {
-    //     if (r) {
-    //       console.log(r);
-    //       console.log(weekInfo);
-    //       this.router.navigateByUrl('/results');
-    //     }
-    //   },
-    //   (error) => {
-    //     console.log('error' + error.error);
-    //   }
-    // );
+  updateTotalScore() {
+    this.weekService
+      .updateTotalScore(this.weekNumber)
+      .pipe(takeUntil(this.destroy1))
+      .subscribe(
+        () => {
+          this.router.navigateByUrl('/results');
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
   }
 
   private upDateForm(week: WeekInfo) {
