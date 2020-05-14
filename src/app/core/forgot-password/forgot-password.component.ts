@@ -1,18 +1,24 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./forgot-password.component.css'],
 })
 export class ForgotPasswordComponent implements OnInit, OnDestroy {
   form: FormGroup;
-  errorMessage = '';
-  successMessage = '';
+  errorSubject: BehaviorSubject<string> = new BehaviorSubject('');
+  successSubject$: BehaviorSubject<string> = new BehaviorSubject('');
   private destroy: Subject<void> = new Subject<void>();
 
   constructor(private authService: AuthService, private fb: FormBuilder) {}
@@ -32,16 +38,31 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       .forgotPassword(info)
       .pipe(takeUntil(this.destroy))
       .subscribe(
-        (result) => (this.successMessage = result.message),
+        (result) => this.successSubject$.next(result.message),
         (error) => {
-          this.errorMessage = error.error.message;
+          // this.errorSuccessService.setErrorMessage(error.error.message);
+          this.errorSubject.next(error.error.message);
+          // //this.errorMessage = error.error.message;
         }
       );
 
     this.form.reset();
   }
 
+  getError$() {
+    return this.errorSubject.asObservable();
+  }
+
+  getSuccess$() {
+    return this.successSubject$.asObservable();
+  }
+
+  closeMessages() {
+    this.errorSubject.next('');
+    this.successSubject$.next('');
+  }
   ngOnDestroy() {
+    this.closeMessages();
     this.destroy.next();
     this.destroy.unsubscribe();
   }

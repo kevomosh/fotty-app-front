@@ -9,6 +9,7 @@ import { MustMatch } from '../helper/mustMatchValidator';
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.component.html',
+  //changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./reset-password.component.css'],
 })
 export class ResetPasswordComponent implements OnInit {

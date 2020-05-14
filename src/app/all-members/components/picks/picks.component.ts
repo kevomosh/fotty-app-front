@@ -1,6 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { combineLatest, Observable, of, throwError } from 'rxjs';
+import { combineLatest, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { FilterService } from 'src/app/helper/filter.service';
 import { NewMatchToBePlayed } from 'src/app/interfaces/newMatchToBePlayed';
@@ -11,12 +16,13 @@ import { WeekService } from 'src/app/services/week.service';
 @Component({
   selector: 'app-picks',
   templateUrl: './picks.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./picks.component.css'],
 })
 export class PicksComponent implements OnInit, OnDestroy {
   weekNumber: number;
-  errorObject = null;
   stream$: Observable<any>;
+  errorSubject$: Subject<string> = new Subject();
 
   constructor(
     private pickService: PickService,
@@ -32,6 +38,8 @@ export class PicksComponent implements OnInit, OnDestroy {
         return parseInt(routeParam.get('weekNumber'));
       }),
       switchMap((weekNumber) => {
+        this.filterService.clearAllFilterInputs();
+        this.clearError();
         this.weekNumber = weekNumber;
         const week$ = this.weekService.getWeekByWeekNumber(weekNumber);
 
@@ -40,8 +48,6 @@ export class PicksComponent implements OnInit, OnDestroy {
 
         const currentWeekNumber$ = this.weekService.weekNumber;
         const title$ = of('Picks For Round ' + weekNumber);
-
-        this.filterService.clearAllFilterInputs();
 
         return combineLatest([
           week$,
@@ -56,7 +62,8 @@ export class PicksComponent implements OnInit, OnDestroy {
             title,
           })),
           catchError((error) => {
-            this.errorObject = error;
+            this.errorSubject$.next(error.error.message);
+
             return throwError(error);
           })
         );
@@ -64,8 +71,12 @@ export class PicksComponent implements OnInit, OnDestroy {
     );
   }
 
+  clearError() {
+    this.errorSubject$.next();
+    //this.errorSubject$.next('');
+  }
+
   errorLoadWeekBefore(weekNumber: number) {
-    this.errorObject = null;
     this.loadWeek(weekNumber);
     this.ngOnInit();
   }
@@ -104,5 +115,6 @@ export class PicksComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.filterService.clearAllFilterInputs();
+    this.clearError();
   }
 }

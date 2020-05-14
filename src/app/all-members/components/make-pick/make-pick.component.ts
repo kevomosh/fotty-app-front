@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { NewMatchToBePlayed } from 'src/app/interfaces/newMatchToBePlayed';
 import { PickInfo } from 'src/app/interfaces/pickInfo';
@@ -27,6 +27,7 @@ export class MakePickComponent implements OnInit, OnDestroy {
   errorMessage = '';
   weekNumber: number;
   userId: number;
+  errorSubject$: BehaviorSubject<string> = new BehaviorSubject('');
 
   private destroy: Subject<void> = new Subject<void>();
 

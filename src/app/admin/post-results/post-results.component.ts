@@ -1,8 +1,13 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { Subject, throwError } from 'rxjs';
+import { catchError, takeUntil, tap } from 'rxjs/operators';
 import { NewMatchToBePlayed } from 'src/app/interfaces/newMatchToBePlayed';
 import { WeekInfo } from 'src/app/interfaces/weekInfo';
 import { WeekService } from 'src/app/services/week.service';
@@ -10,9 +15,12 @@ import { WeekService } from 'src/app/services/week.service';
 @Component({
   selector: 'app-post-results',
   templateUrl: './post-results.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./post-results.component.css'],
 })
 export class PostResultsComponent implements OnInit, OnDestroy {
+  errorSubject$: Subject<string> = new Subject();
+  streamErrorSubject$: Subject<string> = new Subject();
   resultForm: FormGroup;
   weekNumber: number;
   controls: any;
@@ -29,6 +37,10 @@ export class PostResultsComponent implements OnInit, OnDestroy {
       this.weekNumber = week.weekNumber;
       this.upDateForm(week);
       this.controls = this.teamsThatWonArrayControls();
+    }),
+    catchError((error) => {
+      this.streamErrorSubject$.next(error.error.message);
+      return throwError(error);
     })
   );
 
@@ -57,7 +69,7 @@ export class PostResultsComponent implements OnInit, OnDestroy {
           this.router.navigateByUrl('/results');
         },
         (error) => {
-          console.log('error occured' + error);
+          this.errorSubject$.next(error.error.message);
         }
       );
   }
@@ -71,7 +83,7 @@ export class PostResultsComponent implements OnInit, OnDestroy {
           this.router.navigateByUrl('/results');
         },
         (error) => {
-          console.log(error);
+          this.errorSubject$.next(error.error.message);
         }
       );
   }
@@ -97,9 +109,14 @@ export class PostResultsComponent implements OnInit, OnDestroy {
   private teamsThatWonArrayControls() {
     return (<FormArray>this.resultForm.get('weeksResult')).controls;
   }
+  closeMessages() {
+    this.errorSubject$.next();
+  }
 
   ngOnDestroy() {
     this.destroy.next();
     this.destroy.unsubscribe();
+    this.destroy1.next();
+    this.destroy1.unsubscribe();
   }
 }

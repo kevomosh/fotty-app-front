@@ -1,123 +1,120 @@
 <div class="container">
   <div *ngIf="stream$ | async as stream; else loadingOrError">
-    <ng-container *ngIf="!errorObject; else loadingOrError">
-      <app-filter></app-filter>
-      <div class="row my-2">
-        <div class="col">
-          <button
-            *ngIf="weekNumber > 1"
-            type="button"
-            class="btn btn-info"
-            (click)="loadWeek(weekNumber - 1)"
-          >
-            Previous
-          </button>
-        </div>
-        <h5 class="col-4 text-center">{{ stream.title }}</h5>
-        <div class="col">
-          <button
-            *ngIf="weekNumber < stream.currentWeekNumber"
-            type="button"
-            class="btn btn-info float-right"
-            (click)="loadWeek(weekNumber + 1)"
-          >
-            Next
-          </button>
-        </div>
+    <app-filter></app-filter>
+    <div class="row my-2">
+      <div class="col">
+        <button
+          *ngIf="weekNumber > 1"
+          type="button"
+          class="btn btn-info"
+          (click)="loadWeek(weekNumber - 1)"
+        >
+          Previous
+        </button>
       </div>
+      <h5 class="col-4 text-center">{{ stream.title }}</h5>
+      <div class="col">
+        <button
+          *ngIf="weekNumber < stream.currentWeekNumber"
+          type="button"
+          class="btn btn-info float-right"
+          (click)="loadWeek(weekNumber + 1)"
+        >
+          Next
+        </button>
+      </div>
+    </div>
 
-      <div class="shadow p-3 mb-5 bg-white rounded my-2">
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <th>Name</th>
-              <ng-container
-                *ngFor="let match of stream.week.sortedMatchesToBePlayed"
-              >
-                <th>
-                  <div
-                    class="text-center"
-                    [ngClass]="{
-                      'color-change-title': colorTitleIfHomeCorrect(
-                        match,
-                        stream.week.teamsThatWon
-                      )
-                    }"
-                  >
-                    {{ match.homeTeam }}
-                  </div>
-                  <div class="text-center small font-weight-bold">vs</div>
-                  <div
-                    class="text-center"
-                    [ngClass]="{
-                      'color-change-title': colorTitleIfAwayCorrect(
-                        match,
-                        stream.week.teamsThatWon
-                      )
-                    }"
-                  >
-                    {{ match.awayTeam }}
-                  </div>
-                </th>
+    <div class="shadow p-3 mb-5 bg-white rounded my-2">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <th>Name</th>
+            <ng-container
+              *ngFor="let match of stream.week.sortedMatchesToBePlayed"
+            >
+              <th>
+                <div
+                  class="text-center"
+                  [ngClass]="{
+                    'color-change-title': colorTitleIfHomeCorrect(
+                      match,
+                      stream.week.teamsThatWon
+                    )
+                  }"
+                >
+                  {{ match.homeTeam }}
+                </div>
+                <div class="text-center small font-weight-bold">vs</div>
+                <div
+                  class="text-center"
+                  [ngClass]="{
+                    'color-change-title': colorTitleIfAwayCorrect(
+                      match,
+                      stream.week.teamsThatWon
+                    )
+                  }"
+                >
+                  {{ match.awayTeam }}
+                </div>
+              </th>
+            </ng-container>
+            <th>Score</th>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of stream.filteredUsers">
+              <td class="font-italic">{{ user.name }}</td>
+              <ng-container *ngFor="let game of user.teamsSelected">
+                <td
+                  class="text-center"
+                  [ngClass]="{
+                    'color-change': colorIfCorrect(
+                      game,
+                      stream.week.teamsThatWon
+                    )
+                  }"
+                >
+                  {{ game.team }}
+                </td>
               </ng-container>
-              <th>Score</th>
-            </thead>
-            <tbody>
-              <tr *ngFor="let user of stream.filteredUsers">
-                <td class="font-italic">{{ user.name }}</td>
-                <ng-container *ngFor="let game of user.teamsSelected">
-                  <td
-                    class="text-center"
-                    [ngClass]="{
-                      'color-change': colorIfCorrect(
-                        game,
-                        stream.week.teamsThatWon
-                      )
-                    }"
-                  >
-                    {{ game.team }}
-                  </td>
-                </ng-container>
-                <td>{{ user.weeksScore }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <ng-container *ngIf="stream.week.beforeDeadLine">
-          <div class="text-center my-1">
-            <small class="text-success"
-              >You can change picks up until deadline</small
-            >
-
-            <br />
-            <small class="text-success"
-              >You will be able to see other members' picks after
-              deadline.</small
-            >
-            <br />
-            <a
-              type="button"
-              class="btn btn-info btn-sm my-1"
-              routerLink="/make-pick"
-              >Change Picks</a
-            >
-          </div>
-        </ng-container>
+              <td>{{ user.weeksScore }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </ng-container>
+      <ng-container *ngIf="stream.week.beforeDeadLine">
+        <div class="text-center my-1">
+          <small class="text-success"
+            >You can change picks up until deadline</small
+          >
+
+          <br />
+          <small class="text-success"
+            >You will be able to see other members' picks after deadline.</small
+          >
+          <br />
+          <a
+            type="button"
+            class="btn btn-info btn-sm my-1"
+            routerLink="/make-pick"
+            >Change Picks</a
+          >
+        </div>
+      </ng-container>
+    </div>
   </div>
 
   <ng-template #loadingOrError>
-    <ng-container *ngIf="!errorObject; else error">
+    <ng-template #loading>
       <div class="d-flex justify-content-center my-5">
         <div class="spinner-border text-info" role="status">
           <span class="sr-only">Loading...</span>
         </div>
       </div>
-    </ng-container>
-    <ng-template #error>
+    </ng-template>
+    <ng-container *ngIf="errorSubject$ | async as error; else loading">
       <div class="alert alert-danger text-center my-2">
-        <span class="text-center">{{ errorObject.error.message }}</span>
+        <span class="text-center">{{ error }}</span>
       </div>
       <div class="button-group text-center">
         <button
@@ -133,6 +130,6 @@
           Tip Now
         </button>
       </div>
-    </ng-template>
+    </ng-container>
   </ng-template>
 </div>

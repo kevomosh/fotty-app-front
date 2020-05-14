@@ -1,22 +1,30 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { combineLatest, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { combineLatest, Subject, throwError } from 'rxjs';
+import { catchError, map, takeUntil } from 'rxjs/operators';
 import { TeamService } from 'src/app/services/team.service';
 import { WeekService } from 'src/app/services/week.service';
 
 @Component({
   selector: 'app-add-games',
   templateUrl: './add-games.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./add-games.component.css'],
 })
 export class AddGamesComponent implements OnInit, OnDestroy {
+  errorSubject$: Subject<string> = new Subject();
+  combineErrorSubject$: Subject<string> = new Subject();
   private onStop: Subject<void> = new Subject<void>();
+  addGameForm: FormGroup;
+
   weekNumberRange: number[] = Array.from({ length: 30 }, (v, k) => k + 1);
   gameNumberRange: number[] = Array.from({ length: 8 }, (v, k) => k + 1);
-
-  addGameForm: FormGroup;
 
   availabeWeeks$ = this.weekService
     .getTotalNumberOfWeeks()
@@ -28,7 +36,12 @@ export class AddGamesComponent implements OnInit, OnDestroy {
     map(([availableWeekMessage, allTeams]) => ({
       availableWeekMessage,
       allTeams,
-    }))
+    })),
+    catchError((error) => {
+      this.combineErrorSubject$.next(error.error.message);
+
+      return throwError(error);
+    })
   );
 
   constructor(
@@ -69,9 +82,12 @@ export class AddGamesComponent implements OnInit, OnDestroy {
     this.weekService
       .createNewWeek(weekInfo)
       .pipe(takeUntil(this.onStop))
-      .subscribe(() => {
-        this.router.navigateByUrl('/results');
-      });
+      .subscribe(
+        () => {
+          this.router.navigateByUrl('/results');
+        },
+        (error) => this.errorSubject$.next(error.error.message)
+      );
   }
 
   private addMatchGroup(): FormGroup {
@@ -93,6 +109,10 @@ export class AddGamesComponent implements OnInit, OnDestroy {
 
   removeMatchButtonClick(index: number): void {
     this.groupFormArray().removeAt(index);
+  }
+
+  closeMessages() {
+    this.errorSubject$.next();
   }
 
   ngOnDestroy() {

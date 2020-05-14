@@ -1,166 +1,188 @@
-<div class="container" *ngIf="combinedStream$ | async as stream">
-  <div class="row">
-    <div class="col mx-auto">
-      <div class="card my-5">
-        <h5 class="card-title text-center">Add Games</h5>
+<div class="container">
+  <div *ngIf="combinedStream$ | async as stream; else loadingOrError">
+    <div class="row">
+      <div class="col mx-auto">
+        <div class="card my-5">
+          <h5 class="card-title text-center">Add Games</h5>
 
-        {{ stream.availableWeekMessage }}
-        <div class="card-body">
-          <form [formGroup]="addGameForm" (ngSubmit)="onSubmit()">
-            <div class="row">
-              <div class="form-group col">
-                <label>Week Number</label>
-                <select
-                  id="weekNumber"
-                  formControlName="weekNumber"
-                  class="form-control custom-select"
-                >
-                  <option selected [ngValue]="null">Choose...</option>
-                  <option
-                    *ngFor="let number of weekNumberRange"
-                    [value]="number"
-                    >{{ number }}</option
+          {{ stream.availableWeekMessage }}
+          <div class="card-body">
+            <form [formGroup]="addGameForm" (ngSubmit)="onSubmit()">
+              <div class="row">
+                <div class="form-group col">
+                  <label>Week Number</label>
+                  <select
+                    id="weekNumber"
+                    formControlName="weekNumber"
+                    class="form-control custom-select"
                   >
-                </select>
-              </div>
-              <div class="form-group col">
-                <label>Day</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  formControlName="dayOfMonth"
-                />
-              </div>
-              <div class="form-group col">
-                <label>Month</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  formControlName="month"
-                />
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="form-group col">
-                <label>Hour</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  formControlName="hour"
-                />
-              </div>
-              <div class="form-group col">
-                <label>Minute</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  formControlName="minute"
-                />
-              </div>
-              <div class="form-group col">
-                <label>Offset</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  formControlName="offHours"
-                />
-              </div>
-            </div>
-
-            <div
-              formArrayName="matchesThisWeek"
-              *ngFor="let group of groupFormArray()?.controls; let i = index"
-            >
-              <div formGroupName="{{ i }}">
-                <div class="row">
-                  <div class="col-1 form-group">
-                    <label for="g-number" [attr.for]="'g-number' + i"
-                      >G.no</label
+                    <option selected [ngValue]="null">Choose...</option>
+                    <option
+                      *ngFor="let number of weekNumberRange"
+                      [value]="number"
+                      >{{ number }}</option
                     >
-                    <select
-                      [id]="'g-number' + i"
-                      formControlName="gameNumber"
-                      class="form-control custom-select"
-                    >
-                      <option selected [ngValue]="null">Choose</option>
-                      <option
-                        *ngFor="let gameNumber of gameNumberRange"
-                        [value]="gameNumber"
-                        >{{ gameNumber }}</option
-                      >
-                    </select>
-                  </div>
-
-                  <div class="col-4 form-group">
-                    <label for="home-team" [attr.for]="'home-team' + i"
-                      >Home Team</label
-                    >
-                    <select
-                      [id]="'home-team' + i"
-                      formControlName="homeTeam"
-                      class="form-control custom-select"
-                    >
-                      <option selected [ngValue]="null">Choose...</option>
-                      <option
-                        *ngFor="let team of stream.allTeams"
-                        [value]="team.name"
-                        >{{ team.name }}</option
-                      >
-                    </select>
-                  </div>
-
-                  <div class="col-4 form-group">
-                    <label for="away-team" [attr.for]="'away-team' + i"
-                      >Away Team</label
-                    >
-                    <select
-                      [id]="'away-team' + i"
-                      formControlName="awayTeam"
-                      class="form-control custom-select"
-                    >
-                      <option selected [ngValue]="null">Choose...</option>
-                      <option
-                        *ngFor="let team of stream.allTeams"
-                        [value]="team.name"
-                        >{{ team.name }}</option
-                      >
-                    </select>
-                  </div>
-
-                  <span
-                    class="col-2 input-group-btn"
-                    *ngIf="groupFormArray().length > 1"
-                  >
-                    <a type="button" (click)="removeMatchButtonClick(i)">
-                      click
-                    </a>
-                  </span>
+                  </select>
+                </div>
+                <div class="form-group col">
+                  <label>Day</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="dayOfMonth"
+                  />
+                </div>
+                <div class="form-group col">
+                  <label>Month</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="month"
+                  />
                 </div>
               </div>
-            </div>
-            <div class="form-group">
-              <button
-                *ngIf="groupFormArray().length < 8"
-                type="button"
-                class="btn btn-primary"
-                (click)="addMatchButtonClick()"
-                [disabled]="addGameForm.get('matchesThisWeek').invalid"
+
+              <div class="row">
+                <div class="form-group col">
+                  <label>Hour</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="hour"
+                  />
+                </div>
+                <div class="form-group col">
+                  <label>Minute</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="minute"
+                  />
+                </div>
+                <div class="form-group col">
+                  <label>Offset</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="offHours"
+                  />
+                </div>
+              </div>
+
+              <div
+                formArrayName="matchesThisWeek"
+                *ngFor="let group of groupFormArray()?.controls; let i = index"
               >
-                Add Match
-              </button>
-            </div>
-            <div class="form-group">
-              <button
-                class="btn btn-info btn-block"
-                [disabled]="addGameForm.invalid"
-              >
-                Add Matches
-              </button>
-            </div>
-          </form>
+                <div formGroupName="{{ i }}">
+                  <div class="row">
+                    <div class="col-1 form-group">
+                      <label for="g-number" [attr.for]="'g-number' + i"
+                        >G.no</label
+                      >
+                      <select
+                        [id]="'g-number' + i"
+                        formControlName="gameNumber"
+                        class="form-control custom-select"
+                      >
+                        <option selected [ngValue]="null">Choose</option>
+                        <option
+                          *ngFor="let gameNumber of gameNumberRange"
+                          [value]="gameNumber"
+                          >{{ gameNumber }}</option
+                        >
+                      </select>
+                    </div>
+
+                    <div class="col-4 form-group">
+                      <label for="home-team" [attr.for]="'home-team' + i"
+                        >Home Team</label
+                      >
+                      <select
+                        [id]="'home-team' + i"
+                        formControlName="homeTeam"
+                        class="form-control custom-select"
+                      >
+                        <option selected [ngValue]="null">Choose...</option>
+                        <option
+                          *ngFor="let team of stream.allTeams"
+                          [value]="team.name"
+                          >{{ team.name }}</option
+                        >
+                      </select>
+                    </div>
+
+                    <div class="col-4 form-group">
+                      <label for="away-team" [attr.for]="'away-team' + i"
+                        >Away Team</label
+                      >
+                      <select
+                        [id]="'away-team' + i"
+                        formControlName="awayTeam"
+                        class="form-control custom-select"
+                      >
+                        <option selected [ngValue]="null">Choose...</option>
+                        <option
+                          *ngFor="let team of stream.allTeams"
+                          [value]="team.name"
+                          >{{ team.name }}</option
+                        >
+                      </select>
+                    </div>
+
+                    <span
+                      class="col-2 input-group-btn"
+                      *ngIf="groupFormArray().length > 1"
+                    >
+                      <a type="button" (click)="removeMatchButtonClick(i)">
+                        click
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <button
+                  *ngIf="groupFormArray().length < 8"
+                  type="button"
+                  class="btn btn-primary"
+                  (click)="addMatchButtonClick()"
+                  [disabled]="addGameForm.get('matchesThisWeek').invalid"
+                >
+                  Add Match
+                </button>
+              </div>
+              <ng-container *ngIf="errorSubject$ | async as error">
+                <ngb-alert
+                  class="text-center"
+                  type="danger"
+                  (close)="closeMessages()"
+                  >{{ error }}</ngb-alert
+                >
+              </ng-container>
+              <div class="form-group">
+                <button
+                  class="btn btn-info btn-block"
+                  [disabled]="addGameForm.invalid"
+                >
+                  Add Matches
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
   </div>
+  <ng-template #loadingOrError>
+    <ng-container *ngIf="combineErrorSubject$ | async as error; else loading">
+      <ngb-alert class="text-center" type="danger">{{ error }}</ngb-alert>
+    </ng-container>
+    <ng-template #loading>
+      <div class="d-flex justify-content-center my-5">
+        <div class="spinner-border text-info" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+    </ng-template>
+  </ng-template>
 </div>
