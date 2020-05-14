@@ -76,8 +76,7 @@ export class WeekService {
   }
 
   private modifyWeekNumber(weekNumber: any) {
-    const numb = parseInt(localStorage.getItem('weekNumber'));
-    if (numb !== weekNumber) {
+    if (this.weekNumber$.getValue() !== weekNumber) {
       localStorage.setItem('weekNumber', weekNumber);
       this.weekNumber$.next(weekNumber);
     }

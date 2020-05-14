@@ -51,7 +51,11 @@
                     class="col-2 input-group-btn"
                     *ngIf="groupFormArray().length > 1"
                   >
-                    <a type="button" (click)="removeGroupButtonClick(i)">
+                    <a
+                      class="mt-4"
+                      type="button"
+                      (click)="removeGroupButtonClick(i)"
+                    >
                       <i class="far fa-times-circle"></i>
                     </a>
                   </span>
