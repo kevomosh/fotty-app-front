@@ -37,6 +37,8 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
           this.errorMessage = error.error.message;
         }
       );
+
+    this.form.reset();
   }
 
   ngOnDestroy() {

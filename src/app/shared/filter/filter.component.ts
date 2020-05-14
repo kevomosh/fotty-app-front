@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { FilterService } from 'src/app/helper/filter.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { FilterService } from '../filter.service';
 
 @Component({
   selector: 'app-filter',
