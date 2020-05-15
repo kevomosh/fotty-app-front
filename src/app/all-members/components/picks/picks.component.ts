@@ -5,8 +5,14 @@ import {
   OnInit,
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { combineLatest, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  combineLatest,
+  Observable,
+  of,
+  throwError,
+} from 'rxjs';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 import { FilterService } from 'src/app/helper/filter.service';
 import { NewMatchToBePlayed } from 'src/app/interfaces/newMatchToBePlayed';
 import { TeamWonOrSelected } from 'src/app/interfaces/teamWonOrSelected';
@@ -22,7 +28,7 @@ import { WeekService } from 'src/app/services/week.service';
 export class PicksComponent implements OnInit, OnDestroy {
   weekNumber: number;
   stream$: Observable<any>;
-  errorSubject$: Subject<string> = new Subject();
+  errorSubject$: BehaviorSubject<string> = new BehaviorSubject('');
 
   constructor(
     private pickService: PickService,
@@ -37,7 +43,7 @@ export class PicksComponent implements OnInit, OnDestroy {
       map((routeParam: ParamMap) => {
         return parseInt(routeParam.get('weekNumber'));
       }),
-      switchMap((weekNumber) => {
+      mergeMap((weekNumber) => {
         this.filterService.clearAllFilterInputs();
         this.clearError();
         this.weekNumber = weekNumber;
@@ -54,16 +60,17 @@ export class PicksComponent implements OnInit, OnDestroy {
           filteredUsers$,
           currentWeekNumber$,
           title$,
+          this.errorSubject$.asObservable(),
         ]).pipe(
-          map(([week, filteredUsers, currentWeekNumber, title]) => ({
+          map(([week, filteredUsers, currentWeekNumber, title, error]) => ({
             week,
             filteredUsers,
             currentWeekNumber,
             title,
+            error,
           })),
           catchError((error) => {
             this.errorSubject$.next(error.error.message);
-
             return throwError(error);
           })
         );
@@ -72,8 +79,7 @@ export class PicksComponent implements OnInit, OnDestroy {
   }
 
   clearError() {
-    this.errorSubject$.next();
-    //this.errorSubject$.next('');
+    this.errorSubject$.next('');
   }
 
   errorLoadWeekBefore(weekNumber: number) {

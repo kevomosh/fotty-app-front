@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { combineLatest, Subject, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { FilterService } from 'src/app/helper/filter.service';
 import { WeekService } from 'src/app/services/week.service';
 
@@ -11,6 +11,8 @@ import { WeekService } from 'src/app/services/week.service';
   styleUrls: ['./results.component.css'],
 })
 export class ResultsComponent {
+  errorSubject$: Subject<string> = new Subject();
+
   constructor(
     private weekService: WeekService,
     private filterService: FilterService
@@ -28,6 +30,10 @@ export class ResultsComponent {
     map(([filteredUsers, weekNumberString]) => ({
       filteredUsers,
       weekNumberString,
-    }))
+    })),
+    catchError((error) => {
+      this.errorSubject$.next(error.error.message);
+      return throwError(error);
+    })
   );
 }

@@ -2,11 +2,6 @@ input[type="radio"] {
   display: none;
 }
 
-.spinner-border {
-  width: 4rem;
-  height: 4rem;
-}
-
 .btn-light :active {
   background-color: #d65cad;
 }

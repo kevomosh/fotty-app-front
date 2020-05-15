@@ -1,5 +1,5 @@
 <div class="container">
-  <div class="row">
+  <div class="row" *ngIf="allGroups$ | async as allGroups; else loadingOrError">
     <div class="col-sm-12 col-md-7 mx-auto">
       <div class="card my-5 shadow-lg p-3 mb-5 bg-white rounded">
         <div class="card-body">
@@ -31,7 +31,7 @@
                       >
                         <option selected [ngValue]="null">Choose...</option>
                         <option
-                          *ngFor="let load of allGroups$ | async"
+                          *ngFor="let load of allGroups"
                           [value]="load.id"
                           >{{ load.name }}</option
                         >
@@ -75,13 +75,6 @@
               </button>
             </div>
 
-            <ngb-alert
-              class="text-center"
-              *ngIf="errorMessage"
-              type="danger"
-              (close)="errorMessage = null"
-              >{{ errorMessage }}</ngb-alert
-            >
             <div class="form-group">
               <button
                 class="btn btn-primary btn-block"
@@ -90,6 +83,14 @@
                 Make Changes
               </button>
             </div>
+            <ng-container *ngIf="errorSubject$ | async as error">
+              <ngb-alert
+                class="text-center"
+                type="danger"
+                (close)="closeMessages()"
+                >{{ error }}</ngb-alert
+              >
+            </ng-container>
             <div class="text-center">
               <small>Pick all the groups you would like to be a part of</small>
             </div>
@@ -98,4 +99,16 @@
       </div>
     </div>
   </div>
+  <ng-template #loadingOrError>
+    <ng-container *ngIf="groupErrorSubject$ | async as error; else loading">
+      <ngb-alert class="text-center" type="danger">{{ error }}</ngb-alert>
+    </ng-container>
+    <ng-template #loading>
+      <div class="d-flex justify-content-center my-5">
+        <div class="spinner-border text-info" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+    </ng-template>
+  </ng-template>
 </div>

@@ -1,22 +1,35 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, throwError } from 'rxjs';
+import { catchError, takeUntil } from 'rxjs/operators';
 import { GroupService } from 'src/app/services/group.service';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-change-group',
   templateUrl: './change-group.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./change-group.component.css'],
 })
 export class ChangeGroupComponent implements OnInit, OnDestroy {
   changeForm: FormGroup;
-  errorMessage = '';
+
+  errorSubject$: Subject<string> = new Subject();
+  groupErrorSubject$: Subject<string> = new Subject();
   private destroy: Subject<void> = new Subject<void>();
 
-  allGroups$ = this.groupService.getAllGroups();
+  allGroups$ = this.groupService.getAllGroups().pipe(
+    catchError((error) => {
+      this.groupErrorSubject$.next(error.error.message);
+      return throwError(error);
+    })
+  );
 
   constructor(
     private userService: UserService,
@@ -63,9 +76,13 @@ export class ChangeGroupComponent implements OnInit, OnDestroy {
           this.router.navigateByUrl('/results');
         },
         (error) => {
-          this.errorMessage = error.error.message;
+          this.errorSubject$.next(error.error.message);
         }
       );
+  }
+
+  closeMessages() {
+    this.errorSubject$.next();
   }
   ngOnDestroy() {
     this.destroy.next();

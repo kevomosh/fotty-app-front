@@ -6,8 +6,8 @@ import {
 } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Subject, throwError } from 'rxjs';
+import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { NewMatchToBePlayed } from 'src/app/interfaces/newMatchToBePlayed';
 import { PickInfo } from 'src/app/interfaces/pickInfo';
 import { WeekInfo } from 'src/app/interfaces/weekInfo';
@@ -24,10 +24,11 @@ import { WeekService } from 'src/app/services/week.service';
 export class MakePickComponent implements OnInit, OnDestroy {
   pickForm: FormGroup;
   controls: any;
-  errorMessage = '';
   weekNumber: number;
   userId: number;
-  errorSubject$: BehaviorSubject<string> = new BehaviorSubject('');
+
+  errorSubject$: Subject<string> = new Subject();
+  streamErrorSubject$: Subject<string> = new Subject();
 
   private destroy: Subject<void> = new Subject<void>();
 
@@ -49,7 +50,11 @@ export class MakePickComponent implements OnInit, OnDestroy {
           this.controls = this.teamsSelectedArrayControls();
         })
       )
-    )
+    ),
+    catchError((error) => {
+      this.streamErrorSubject$.next(error.error.message);
+      return throwError(error);
+    })
   );
 
   ngOnInit(): void {
@@ -95,7 +100,14 @@ export class MakePickComponent implements OnInit, OnDestroy {
     this.pickService
       .createOrUpdatePick(pickInfo)
       .pipe(takeUntil(this.destroy))
-      .subscribe(() => this.router.navigate(['/picks', this.weekNumber]));
+      .subscribe(
+        () => this.router.navigate(['/picks', this.weekNumber]),
+        (error) => this.errorSubject$.next(error.error.message)
+      );
+  }
+
+  closeMessages() {
+    this.errorSubject$.next();
   }
 
   ngOnDestroy() {

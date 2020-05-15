@@ -39,7 +39,6 @@ export class AddGamesComponent implements OnInit, OnDestroy {
     })),
     catchError((error) => {
       this.combineErrorSubject$.next(error.error.message);
-
       return throwError(error);
     })
   );
