@@ -8,6 +8,7 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { combineLatest, Subject, throwError } from 'rxjs';
 import { catchError, map, takeUntil } from 'rxjs/operators';
+import { LoadingErrorService } from 'src/app/services/loading-error.service';
 import { TeamService } from 'src/app/services/team.service';
 import { WeekService } from 'src/app/services/week.service';
 
@@ -18,8 +19,14 @@ import { WeekService } from 'src/app/services/week.service';
   styleUrls: ['./add-games.component.css'],
 })
 export class AddGamesComponent implements OnInit, OnDestroy {
-  errorSubject$: Subject<string> = new Subject();
-  combineErrorSubject$: Subject<string> = new Subject();
+  constructor(
+    private teamService: TeamService,
+    private fb: FormBuilder,
+    private weekService: WeekService,
+    private router: Router,
+    private loadingErrorService: LoadingErrorService
+  ) {}
+
   private onStop: Subject<void> = new Subject<void>();
   addGameForm: FormGroup;
 
@@ -32,23 +39,23 @@ export class AddGamesComponent implements OnInit, OnDestroy {
 
   allTeams$ = this.teamService.getAllteams();
 
-  combinedStream$ = combineLatest([this.availabeWeeks$, this.allTeams$]).pipe(
-    map(([availableWeekMessage, allTeams]) => ({
+  combinedStream$ = combineLatest([
+    this.availabeWeeks$,
+    this.allTeams$,
+    this.loadingErrorService.error$,
+    this.loadingErrorService.loading$,
+  ]).pipe(
+    map(([availableWeekMessage, allTeams, error, loading]) => ({
       availableWeekMessage,
       allTeams,
+      error,
+      loading,
     })),
     catchError((error) => {
-      this.combineErrorSubject$.next(error.error.message);
+      this.loadingErrorService.setStreamError(error);
       return throwError(error);
     })
   );
-
-  constructor(
-    private teamService: TeamService,
-    private fb: FormBuilder,
-    private weekService: WeekService,
-    private router: Router
-  ) {}
 
   ngOnInit() {
     this.addGameForm = this.fb.group({
@@ -64,6 +71,7 @@ export class AddGamesComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    this.loadingErrorService.startLoading();
     let details = this.addGameForm.value;
     const weekInfo = {
       weekNumber: details.weekNumber,
@@ -83,9 +91,13 @@ export class AddGamesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.onStop))
       .subscribe(
         () => {
+          this.loadingErrorService.cancelLoading();
           this.router.navigateByUrl('/results');
         },
-        (error) => this.errorSubject$.next(error.error.message)
+        (error) => {
+          this.loadingErrorService.cancelLoading();
+          this.loadingErrorService.setError(error);
+        }
       );
   }
 
@@ -110,12 +122,17 @@ export class AddGamesComponent implements OnInit, OnDestroy {
     this.groupFormArray().removeAt(index);
   }
 
+  getStreamError$() {
+    return this.loadingErrorService.streamError$;
+  }
+
   closeMessages() {
-    this.errorSubject$.next();
+    this.loadingErrorService.cancelError();
   }
 
   ngOnDestroy() {
     this.onStop.next();
     this.onStop.complete();
+    this.loadingErrorService.cancelLoadingAndError();
   }
 }

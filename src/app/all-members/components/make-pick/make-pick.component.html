@@ -1,18 +1,20 @@
 <div class="container">
-  <div *ngIf="stream$ | async as currentWeek; else loadingOrError">
-    <h3 class="text-center">Tips For Round {{ currentWeek.weekNumber }}</h3>
+  <div *ngIf="stream$ | async as stream; else loadingOrError">
+    <h3 class="text-center mt-2">
+      Tips For Round {{ stream.week.weekNumber }}
+    </h3>
     <h6 class="text-center">
       Deadline is at
-      {{ currentWeek.deadLineInstant | date: "dd-MM-yyyy HH:mm:ss" }}
+      {{ stream.week.deadLineInstant | date: "dd-MM-yyyy HH:mm:ss" }}
     </h6>
 
-    <div *ngIf="!currentWeek.beforeDeadLine; else before" class="text-center">
+    <div *ngIf="!stream.week.beforeDeadLine; else before" class="text-center">
       <div class="alert alert-danger">
         Its past the deadline. No more picks allowed.
       </div>
       <button
         class="btn btn-danger mb-1"
-        [routerLink]="['/picks', currentWeek.weekNumber]"
+        [routerLink]="['/picks', stream.week.weekNumber]"
       >
         Weekly Picks
       </button>
@@ -61,6 +63,20 @@
           </div>
         </div>
 
+        <ng-container *ngIf="stream.loading">
+          <div class="alert alert-info text-center text-dark">
+            Processing your pick, just relax.....
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="stream.error">
+          <ngb-alert
+            class="text-center"
+            type="danger"
+            (close)="closeMessages()"
+            >{{ stream.error }}</ngb-alert
+          >
+        </ng-container>
         <button
           class="btn btn-primary btn-block my-3"
           [disabled]="pickForm.invalid"
@@ -75,15 +91,9 @@
         >
       </div>
     </ng-template>
-
-    <ng-container *ngIf="errorSubject$ | async as error">
-      <ngb-alert class="text-center" type="danger" (close)="closeMessages()">{{
-        error
-      }}</ngb-alert>
-    </ng-container>
   </div>
   <ng-template #loadingOrError>
-    <ng-container *ngIf="streamErrorSubject$ | async as error; else loading">
+    <ng-container *ngIf="getStreamError$() | async as error; else loading">
       <ngb-alert class="text-center" type="danger">{{ error }}</ngb-alert>
     </ng-container>
     <ng-template #loading>

@@ -16,6 +16,7 @@ import { catchError, map, mergeMap } from 'rxjs/operators';
 import { FilterService } from 'src/app/helper/filter.service';
 import { NewMatchToBePlayed } from 'src/app/interfaces/newMatchToBePlayed';
 import { TeamWonOrSelected } from 'src/app/interfaces/teamWonOrSelected';
+import { LoadingErrorService } from 'src/app/services/loading-error.service';
 import { PickService } from 'src/app/services/pick.service';
 import { WeekService } from 'src/app/services/week.service';
 
@@ -35,7 +36,8 @@ export class PicksComponent implements OnInit, OnDestroy {
     private activeRoute: ActivatedRoute,
     private weekService: WeekService,
     private filterService: FilterService,
-    private router: Router
+    private router: Router,
+    private loadingErrorService: LoadingErrorService
   ) {}
 
   ngOnInit(): void {
@@ -49,7 +51,12 @@ export class PicksComponent implements OnInit, OnDestroy {
         this.weekNumber = weekNumber;
         const week$ = this.weekService.getWeekByWeekNumber(weekNumber);
 
-        const allUsers$ = this.pickService.getPicksForTheWeek(weekNumber);
+        const allUsers$ = this.pickService.getPicksForTheWeek(weekNumber).pipe(
+          catchError((error) => {
+            this.loadingErrorService.setError(error);
+            return of([]);
+          })
+        );
         const filteredUsers$ = this.filterService.createFilter(allUsers$);
 
         const currentWeekNumber$ = this.weekService.weekNumber;
@@ -60,7 +67,7 @@ export class PicksComponent implements OnInit, OnDestroy {
           filteredUsers$,
           currentWeekNumber$,
           title$,
-          this.errorSubject$.asObservable(),
+          this.loadingErrorService.error$,
         ]).pipe(
           map(([week, filteredUsers, currentWeekNumber, title, error]) => ({
             week,
@@ -79,7 +86,12 @@ export class PicksComponent implements OnInit, OnDestroy {
   }
 
   clearError() {
+    this.loadingErrorService.cancelError();
     this.errorSubject$.next('');
+  }
+
+  getStreamError$() {
+    return this.loadingErrorService.streamError$;
   }
 
   errorLoadWeekBefore(weekNumber: number) {
@@ -99,24 +111,27 @@ export class PicksComponent implements OnInit, OnDestroy {
     team: TeamWonOrSelected,
     teamsThatWon: TeamWonOrSelected[]
   ): boolean {
-    const z = teamsThatWon.find((e) => e.team === team.team);
-    return teamsThatWon.length > 0 && z ? true : false;
+    return teamsThatWon.length > 0
+      ? teamsThatWon.map((e) => e.team).includes(team.team)
+      : false;
   }
 
   colorTitleIfHomeCorrect(
     team: NewMatchToBePlayed,
     teamsThatWon: TeamWonOrSelected[]
   ): boolean {
-    const z = teamsThatWon.find((e) => e.team === team.homeTeam);
-    return teamsThatWon.length > 0 && z ? true : false;
+    return teamsThatWon.length > 0
+      ? teamsThatWon.map((e) => e.team).includes(team.homeTeam)
+      : false;
   }
 
   colorTitleIfAwayCorrect(
     team: NewMatchToBePlayed,
     teamsThatWon: TeamWonOrSelected[]
   ): boolean {
-    const z = teamsThatWon.find((e) => e.team === team.awayTeam);
-    return teamsThatWon.length > 0 && z ? true : false;
+    return teamsThatWon.length > 0
+      ? teamsThatWon.map((e) => e.team).includes(team.awayTeam)
+      : false;
   }
 
   ngOnDestroy() {

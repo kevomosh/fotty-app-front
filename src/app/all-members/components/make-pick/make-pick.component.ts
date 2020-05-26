@@ -6,12 +6,13 @@ import {
 } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subject, throwError } from 'rxjs';
-import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { combineLatest, Subject, throwError } from 'rxjs';
+import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { NewMatchToBePlayed } from 'src/app/interfaces/newMatchToBePlayed';
 import { PickInfo } from 'src/app/interfaces/pickInfo';
 import { WeekInfo } from 'src/app/interfaces/weekInfo';
 import { AuthService } from 'src/app/services/auth.service';
+import { LoadingErrorService } from 'src/app/services/loading-error.service';
 import { PickService } from 'src/app/services/pick.service';
 import { WeekService } from 'src/app/services/week.service';
 
@@ -22,25 +23,23 @@ import { WeekService } from 'src/app/services/week.service';
   styleUrls: ['./make-pick.component.css'],
 })
 export class MakePickComponent implements OnInit, OnDestroy {
-  pickForm: FormGroup;
-  controls: any;
-  weekNumber: number;
-  userId: number;
-
-  errorSubject$: Subject<string> = new Subject();
-  streamErrorSubject$: Subject<string> = new Subject();
-
-  private destroy: Subject<void> = new Subject<void>();
-
   constructor(
     private weekService: WeekService,
     private authService: AuthService,
     private pickService: PickService,
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private loadingErrorServive: LoadingErrorService
   ) {}
 
-  stream$ = this.authService.userId.pipe(
+  pickForm: FormGroup;
+  controls: any;
+  weekNumber: number;
+  userId: number;
+
+  private destroy: Subject<void> = new Subject<void>();
+
+  week$ = this.authService.userId.pipe(
     tap((id) => (this.userId = id)),
     switchMap(() =>
       this.weekService.getCurrentWeek().pipe(
@@ -50,9 +49,21 @@ export class MakePickComponent implements OnInit, OnDestroy {
           this.controls = this.teamsSelectedArrayControls();
         })
       )
-    ),
+    )
+  );
+
+  stream$ = combineLatest([
+    this.week$,
+    this.loadingErrorServive.loading$,
+    this.loadingErrorServive.error$,
+  ]).pipe(
+    map(([week, loading, error]) => ({
+      week,
+      loading,
+      error,
+    })),
     catchError((error) => {
-      this.streamErrorSubject$.next(error.error.message);
+      this.loadingErrorServive.setStreamError(error);
       return throwError(error);
     })
   );
@@ -86,6 +97,8 @@ export class MakePickComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    this.loadingErrorServive.startLoading();
+    this.closeMessages();
     const result = this.pickForm.value;
 
     const pickInfo: PickInfo = {
@@ -101,16 +114,27 @@ export class MakePickComponent implements OnInit, OnDestroy {
       .createOrUpdatePick(pickInfo)
       .pipe(takeUntil(this.destroy))
       .subscribe(
-        () => this.router.navigate(['/picks', this.weekNumber]),
-        (error) => this.errorSubject$.next(error.error.message)
+        () => {
+          this.loadingErrorServive.cancelLoading();
+          this.router.navigate(['/picks', this.weekNumber]);
+        },
+        (error) => {
+          this.loadingErrorServive.cancelLoading();
+          this.loadingErrorServive.autoCloseErrorAlert(error);
+        }
       );
   }
 
   closeMessages() {
-    this.errorSubject$.next();
+    this.loadingErrorServive.cancelError();
+  }
+
+  getStreamError$() {
+    return this.loadingErrorServive.streamError$;
   }
 
   ngOnDestroy() {
+    this.loadingErrorServive.cancelLoadingAndError();
     this.destroy.next();
     this.destroy.unsubscribe();
   }

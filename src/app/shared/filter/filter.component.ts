@@ -41,6 +41,6 @@ export class FilterComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.filterService.clearAllFilterInputs();
+    //this.filterService.clearAllFilterInputs();
   }
 }

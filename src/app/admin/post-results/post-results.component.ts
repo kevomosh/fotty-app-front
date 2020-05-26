@@ -6,10 +6,11 @@ import {
 } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subject, throwError } from 'rxjs';
-import { catchError, takeUntil, tap } from 'rxjs/operators';
+import { combineLatest, Subject, throwError } from 'rxjs';
+import { catchError, map, takeUntil, tap } from 'rxjs/operators';
 import { NewMatchToBePlayed } from 'src/app/interfaces/newMatchToBePlayed';
 import { WeekInfo } from 'src/app/interfaces/weekInfo';
+import { LoadingErrorService } from 'src/app/services/loading-error.service';
 import { WeekService } from 'src/app/services/week.service';
 
 @Component({
@@ -19,27 +20,38 @@ import { WeekService } from 'src/app/services/week.service';
   styleUrls: ['./post-results.component.css'],
 })
 export class PostResultsComponent implements OnInit, OnDestroy {
-  errorSubject$: Subject<string> = new Subject();
-  streamErrorSubject$: Subject<string> = new Subject();
+  constructor(
+    private weekService: WeekService,
+    private fb: FormBuilder,
+    private router: Router,
+    private loadingErrorService: LoadingErrorService
+  ) {}
+
   resultForm: FormGroup;
   weekNumber: number;
   controls: any;
   private destroy: Subject<void> = new Subject<void>();
-  private destroy1: Subject<void> = new Subject<void>();
-  constructor(
-    private weekService: WeekService,
-    private fb: FormBuilder,
-    private router: Router
-  ) {}
 
-  stream$ = this.weekService.getFilteredMatches().pipe(
+  week$ = this.weekService.getFilteredMatches().pipe(
     tap((week) => {
       this.weekNumber = week.weekNumber;
       this.upDateForm(week);
       this.controls = this.teamsThatWonArrayControls();
-    }),
+    })
+  );
+
+  stream$ = combineLatest([
+    this.week$,
+    this.loadingErrorService.error$,
+    this.loadingErrorService.loading$,
+  ]).pipe(
+    map(([week, error, loading]) => ({
+      week,
+      error,
+      loading,
+    })),
     catchError((error) => {
-      this.streamErrorSubject$.next(error.error.message);
+      this.loadingErrorService.setStreamError(error);
       return throwError(error);
     })
   );
@@ -51,6 +63,8 @@ export class PostResultsComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    this.loadingErrorService.startLoading();
+
     const result = this.resultForm.value;
     const unfiltered = result.weeksResult.filter((game) => game.team !== '');
     const weekInfo: WeekInfo = {
@@ -66,24 +80,30 @@ export class PostResultsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy))
       .subscribe(
         () => {
+          this.loadingErrorService.cancelLoading();
           this.router.navigateByUrl('/results');
         },
         (error) => {
-          this.errorSubject$.next(error.error.message);
+          this.loadingErrorService.cancelLoading();
+          this.loadingErrorService.setError(error);
         }
       );
   }
 
   updateTotalScore() {
+    this.loadingErrorService.startLoading();
+
     this.weekService
       .updateTotalScore(this.weekNumber)
-      .pipe(takeUntil(this.destroy1))
+      .pipe(takeUntil(this.destroy))
       .subscribe(
         () => {
+          this.loadingErrorService.cancelLoading();
           this.router.navigateByUrl('/results');
         },
         (error) => {
-          this.errorSubject$.next(error.error.message);
+          this.loadingErrorService.cancelLoading();
+          this.loadingErrorService.setError(error);
         }
       );
   }
@@ -109,14 +129,18 @@ export class PostResultsComponent implements OnInit, OnDestroy {
   private teamsThatWonArrayControls() {
     return (<FormArray>this.resultForm.get('weeksResult')).controls;
   }
+
   closeMessages() {
-    this.errorSubject$.next();
+    this.loadingErrorService.cancelError();
+  }
+
+  getStreamError$() {
+    return this.loadingErrorService.streamError$;
   }
 
   ngOnDestroy() {
+    this.loadingErrorService.cancelLoadingAndError();
     this.destroy.next();
     this.destroy.unsubscribe();
-    this.destroy1.next();
-    this.destroy1.unsubscribe();
   }
 }

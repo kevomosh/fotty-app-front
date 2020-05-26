@@ -1,42 +1,64 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { combineLatest, Observable, Subject, throwError } from 'rxjs';
+import { catchError, map, takeUntil, tap } from 'rxjs/operators';
 import { GroupInfo } from 'src/app/interfaces/groupInfo';
 import { RegisterInfo } from 'src/app/interfaces/registerInfo';
 import { AuthService } from 'src/app/services/auth.service';
 import { GroupService } from 'src/app/services/group.service';
+import { LoadingErrorService } from 'src/app/services/loading-error.service';
 import { MustMatch } from '../helper/mustMatchValidator';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./register.component.css'],
 })
 export class RegisterComponent implements OnInit, OnDestroy {
   registerForm: FormGroup;
-  errorMessage: string = '';
-  groups$: Observable<GroupInfo[]> = this.groupService.getAllGroups();
-  // filteredGroups$: Observable<GroupInfo[]>;
-
   private destroy: Subject<void> = new Subject<void>();
-  private destroy1: Subject<void> = new Subject<void>();
 
   constructor(
     private authService: AuthService,
     private router: Router,
     private groupService: GroupService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private loadingErrorService: LoadingErrorService
   ) {}
 
-  ngOnInit(): void {
-    this.authService.logInStatus
-      .pipe(takeUntil(this.destroy))
-      .subscribe((isLoggedIn) => {
-        if (isLoggedIn) this.router.navigateByUrl('/');
-      });
+  groups$: Observable<GroupInfo[]> = this.groupService.getAllGroups();
 
+  logInStatus$ = this.authService.logInStatus.pipe(
+    tap((loggedIn) => {
+      if (loggedIn) this.router.navigateByUrl('/results');
+    })
+  );
+
+  combined$ = combineLatest([
+    this.groups$,
+    this.loadingErrorService.error$,
+    this.loadingErrorService.loading$,
+    this.logInStatus$,
+  ]).pipe(
+    map(([groups, error, loading]) => ({
+      groups,
+      error,
+      loading,
+    })),
+    catchError((error) => {
+      this.loadingErrorService.setStreamError(error);
+      return throwError(error);
+    })
+  );
+
+  ngOnInit(): void {
     this.registerForm = this.fb.group(
       {
         name: [
@@ -79,6 +101,9 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    this.loadingErrorService.startLoading();
+    this.closeAlert();
+
     let details = this.registerForm.value;
     const registerInfo: RegisterInfo = {
       name: details.name,
@@ -90,14 +115,16 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
     this.authService
       .register(registerInfo)
-      .pipe(takeUntil(this.destroy1))
+      .pipe(takeUntil(this.destroy))
       .subscribe(
         () => {
+          this.loadingErrorService.cancelLoading();
           this.registerForm.reset();
           this.router.navigateByUrl('/login');
         },
         (error) => {
-          this.errorMessage = error.error.message;
+          this.loadingErrorService.cancelLoading();
+          this.loadingErrorService.setError(error);
         }
       );
   }
@@ -108,10 +135,15 @@ export class RegisterComponent implements OnInit, OnDestroy {
     });
   }
 
+  getStreamError() {
+    return this.loadingErrorService.streamError$;
+  }
+
   closeAlert() {
-    this.errorMessage = '';
+    this.loadingErrorService.cancelError();
   }
   ngOnDestroy() {
+    this.loadingErrorService.cancelLoadingAndError();
     this.destroy.next();
     this.destroy.unsubscribe();
   }

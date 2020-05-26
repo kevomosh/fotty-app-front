@@ -1,10 +1,10 @@
 <div class="container">
-  <div *ngIf="stream$ | async as currentWeek; else loadingOrError">
+  <div *ngIf="stream$ | async as stream; else loadingOrError">
     <h3 class="text-center">
-      Post Results For Round {{ currentWeek.weekNumber }}
+      Post Results For Round {{ stream.week.weekNumber }}
     </h3>
 
-    <ng-container *ngIf="currentWeek.beforeDeadLine">
+    <ng-container *ngIf="stream.week.beforeDeadLine">
       <h5 class="text-center">Have to wait till after deadline</h5>
     </ng-container>
 
@@ -50,19 +50,22 @@
           </div>
         </div>
       </div>
+      <ng-container *ngIf="stream.loading">
+        <div class="alert alert-warning text-center">loading.....</div>
+      </ng-container>
 
-      <ng-container *ngIf="errorSubject$ | async as error">
+      <ng-container *ngIf="stream.error">
         <ngb-alert
           class="text-center"
           type="danger"
           (close)="closeMessages()"
-          >{{ error }}</ngb-alert
+          >{{ stream.error }}</ngb-alert
         >
       </ng-container>
       <button
-        *ngIf="currentWeek.filteredMatches.length > 0; else totalScore"
+        *ngIf="stream.week.filteredMatches.length > 0; else totalScore"
         class="btn btn-primary btn-block my-3"
-        [disabled]="currentWeek.beforeDeadLine"
+        [disabled]="stream.week.beforeDeadLine"
       >
         Submit
       </button>
@@ -80,7 +83,7 @@
   </div>
 
   <ng-template #loadingOrError>
-    <ng-container *ngIf="streamErrorSubject$ | async as error; else loading">
+    <ng-container *ngIf="getStreamError$() | async as error; else loading">
       <ngb-alert class="text-center" type="danger">{{ error }}</ngb-alert>
     </ng-container>
     <ng-template #loading>

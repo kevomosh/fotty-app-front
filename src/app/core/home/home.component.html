@@ -1,4 +1,5 @@
-<div class="container-fluid">
+<ng-container *ngIf="logInStatus$ | async"></ng-container>
+<div class="text-light">
   <div id="home">
     <h1>NRL Footy Tipping</h1>
     <h3>Join an existing group or create one</h3>

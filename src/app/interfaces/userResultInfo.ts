@@ -4,8 +4,8 @@ import { TeamWonOrSelected } from './teamWonOrSelected';
 export interface UserResultInfo {
   name?: string;
   groups?: GroupInfo[];
-  totalScore?: number;
-  previousWeeksScore?: number;
+  score?: number;
+  lastWeek?: number;
   position?: number;
   teamsSelected?: TeamWonOrSelected[];
   weeksScore?: number;

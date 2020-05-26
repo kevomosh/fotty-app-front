@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { combineLatest, Subject, throwError } from 'rxjs';
+import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
+import { combineLatest, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { FilterService } from 'src/app/helper/filter.service';
+import { LoadingErrorService } from 'src/app/services/loading-error.service';
 import { WeekService } from 'src/app/services/week.service';
 
 @Component({
@@ -10,12 +11,11 @@ import { WeekService } from 'src/app/services/week.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./results.component.css'],
 })
-export class ResultsComponent {
-  errorSubject$: Subject<string> = new Subject();
-
+export class ResultsComponent implements OnDestroy {
   constructor(
     private weekService: WeekService,
-    private filterService: FilterService
+    private filterService: FilterService,
+    private loadingErrorService: LoadingErrorService
   ) {}
 
   weekNumberString$ = this.weekService
@@ -32,8 +32,16 @@ export class ResultsComponent {
       weekNumberString,
     })),
     catchError((error) => {
-      this.errorSubject$.next(error.error.message);
+      this.loadingErrorService.setStreamError(error);
       return throwError(error);
     })
   );
+
+  getStreamError$() {
+    return this.loadingErrorService.streamError$;
+  }
+
+  ngOnDestroy() {
+    this.filterService.clearAllFilterInputs();
+  }
 }

@@ -34,5 +34,6 @@ export class NavbarComponent {
 
   onLogout() {
     this.authService.logout();
+    this.isMenuCollapsed = true;
   }
 }

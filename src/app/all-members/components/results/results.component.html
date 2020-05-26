@@ -16,22 +16,14 @@
       >
         <ngx-datatable-column name="Position"></ngx-datatable-column>
         <ngx-datatable-column name="Name"></ngx-datatable-column>
-        <ngx-datatable-column name="PreviousWeeksScore">
-          <ng-template let-column="column" ngx-datatable-header-template>
-            <span>Last Week</span>
-          </ng-template>
-        </ngx-datatable-column>
-        <ngx-datatable-column name="TotalScore">
-          <ng-template let-column="column" ngx-datatable-header-template>
-            <span>Score</span>
-          </ng-template>
-        </ngx-datatable-column>
+        <ngx-datatable-column name="LastWeek"></ngx-datatable-column>
+        <ngx-datatable-column name="Score"> </ngx-datatable-column>
       </ngx-datatable>
     </div>
   </ng-container>
 
   <ng-template #loadingOrError>
-    <ng-container *ngIf="errorSubject$ | async as error; else loading">
+    <ng-container *ngIf="getStreamError$() | async as error; else loading">
       <ngb-alert class="text-center mt-4" type="danger">{{ error }}</ngb-alert>
     </ng-container>
     <ng-template #loading>

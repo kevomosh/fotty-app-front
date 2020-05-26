@@ -82,7 +82,7 @@ export class AuthService {
     localStorage.removeItem('userName');
     localStorage.removeItem('weekNumber');
     localStorage.removeItem('groups');
-    this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/home');
   }
 
   get logInStatus(): Observable<boolean> {
