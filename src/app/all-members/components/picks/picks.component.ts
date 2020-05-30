@@ -17,6 +17,7 @@ import { FilterService } from 'src/app/helper/filter.service';
 import { NewMatchToBePlayed } from 'src/app/interfaces/newMatchToBePlayed';
 import { TeamWonOrSelected } from 'src/app/interfaces/teamWonOrSelected';
 import { LoadingErrorService } from 'src/app/services/loading-error.service';
+import { PaginationService } from 'src/app/services/pagination.service';
 import { PickService } from 'src/app/services/pick.service';
 import { WeekService } from 'src/app/services/week.service';
 
@@ -37,7 +38,8 @@ export class PicksComponent implements OnInit, OnDestroy {
     private weekService: WeekService,
     private filterService: FilterService,
     private router: Router,
-    private loadingErrorService: LoadingErrorService
+    private loadingErrorService: LoadingErrorService,
+    public paginationService: PaginationService
   ) {}
 
   ngOnInit(): void {
@@ -45,9 +47,11 @@ export class PicksComponent implements OnInit, OnDestroy {
       map((routeParam: ParamMap) => {
         return parseInt(routeParam.get('weekNumber'));
       }),
+
       mergeMap((weekNumber) => {
         this.filterService.clearAllFilterInputs();
         this.clearError();
+        this.paginationService.resetPage();
         this.weekNumber = weekNumber;
         const week$ = this.weekService.getWeekByWeekNumber(weekNumber);
 
@@ -57,21 +61,25 @@ export class PicksComponent implements OnInit, OnDestroy {
             return of([]);
           })
         );
+
         const filteredUsers$ = this.filterService.createFilter(allUsers$);
+        const paginatedUsers$ = this.paginationService.paginatedUsers(
+          filteredUsers$
+        );
 
         const currentWeekNumber$ = this.weekService.weekNumber;
         const title$ = of('Picks For Round ' + weekNumber);
 
         return combineLatest([
           week$,
-          filteredUsers$,
+          paginatedUsers$,
           currentWeekNumber$,
           title$,
           this.loadingErrorService.error$,
         ]).pipe(
-          map(([week, filteredUsers, currentWeekNumber, title, error]) => ({
+          map(([week, paginatedUsers, currentWeekNumber, title, error]) => ({
             week,
-            filteredUsers,
+            paginatedUsers,
             currentWeekNumber,
             title,
             error,
@@ -134,8 +142,14 @@ export class PicksComponent implements OnInit, OnDestroy {
       : false;
   }
 
+  // cz(matches: NewMatchToBePlayed[], pickedTeams: TeamWonOrSelected[]) {
+  //   const z = matches.map((item, i) => Object.assign({}, item, pickedTeams[i]));
+  //   console.log(z);
+  //   return z;
+  // }
   ngOnDestroy() {
     this.filterService.clearAllFilterInputs();
     this.clearError();
+    this.paginationService.reset();
   }
 }

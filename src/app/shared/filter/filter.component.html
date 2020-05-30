@@ -7,6 +7,27 @@
   />
 
   <ng-container *ngIf="stream.userGroups.length > 1">
+    <!-- <ul class="d-flex flex-wrap">
+      <li
+        type="button"
+        class="list-group-item text-center"
+        [ngClass]="{ 'color-change': stream.pickedGroup === 'AllGroups' }"
+        (click)="filterGroup('AllGroups')"
+      >
+        All Groups
+      </li>
+      <li
+        type="button"
+        class="list-group-item text-center"
+        *ngFor="let group of stream.userGroups"
+        (click)="filterGroup(group.name)"
+        [ngClass]="{
+          'color-change': group.name === stream.pickedGroup
+        }"
+      >
+        {{ group.name }}
+      </li>
+    </ul> -->
     <ul class="list-group list-group-horizontal mt-1 mb-2">
       <li
         type="button"

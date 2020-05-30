@@ -2,6 +2,7 @@
   <div *ngIf="stream$ | async as stream; else loadingOrError">
     <ng-container *ngIf="!stream.error; else error">
       <app-filter></app-filter>
+
       <div class="row my-2">
         <div class="col">
           <button
@@ -63,7 +64,7 @@
               <th>Score</th>
             </thead>
             <tbody>
-              <tr *ngFor="let user of stream.filteredUsers">
+              <tr *ngFor="let user of stream.paginatedUsers">
                 <td class="font-italic">{{ user.name }}</td>
                 <ng-container *ngFor="let game of user.teamsSelected">
                   <td
@@ -83,7 +84,7 @@
             </tbody>
           </table>
         </div>
-        <ng-container *ngIf="stream.week.beforeDeadLine">
+        <ng-container *ngIf="stream.week.beforeDeadLine; else paginate">
           <div class="text-center my-1">
             <small class="text-success"
               >You can change picks up until deadline</small
@@ -103,6 +104,36 @@
             >
           </div>
         </ng-container>
+        <ng-template #paginate>
+          <div class="d-flex justify-content-between p-2">
+            <ngb-pagination
+              class="d-flex justify-content-center"
+              [collectionSize]="paginationService.collectionSize"
+              [(page)]="paginationService.page"
+              [maxSize]="4"
+              [rotate]="true"
+              [ellipses]="false"
+              [pageSize]="paginationService.pageSize"
+              size="sm"
+            >
+            </ngb-pagination>
+
+            <select
+              class="form-control form-control-sm"
+              style="width: auto;"
+              [(ngModel)]="paginationService.pageSize"
+            >
+              <option [ngValue]="2">2 per page</option>
+              <option [ngValue]="5">5 per page</option>
+              <ng-container *ngIf="paginationService.collectionSize > 5">
+                <option [ngValue]="10">10 per page</option>
+              </ng-container>
+              <ng-container *ngIf="paginationService.collectionSize > 10">
+                <option [ngValue]="20">20 per page</option>
+              </ng-container>
+            </select>
+          </div>
+        </ng-template>
       </div>
     </ng-container>
     <ng-template #error>
