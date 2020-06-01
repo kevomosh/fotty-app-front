@@ -1,188 +1,40 @@
 <div class="container">
   <div *ngIf="stream$ | async as stream; else loadingOrError">
-    <ng-container *ngIf="!stream.error; else error">
+    <ng-container *ngIf="stream.err; else noError">
+      <app-error
+        [childError]="stream.err"
+        [childWeekNumber]="weekNumber"
+        (chilNo)="errorLoadWeekBefore($event)"
+      ></app-error>
+    </ng-container>
+    <ng-template #noError>
       <app-filter></app-filter>
 
-      <div class="row my-2">
-        <div class="col">
-          <button
-            *ngIf="weekNumber > 1"
-            type="button"
-            class="btn btn-info"
-            (click)="loadWeek(weekNumber - 1)"
-          >
-            Previous
-          </button>
-        </div>
-        <h5 class="col-4 text-center">{{ stream.title }}</h5>
-        <div class="col">
-          <button
-            *ngIf="weekNumber < stream.currentWeekNumber"
-            type="button"
-            class="btn btn-info float-right"
-            (click)="loadWeek(weekNumber + 1)"
-          >
-            Next
-          </button>
-        </div>
-      </div>
+      <table-head
+        [weekNumber]="weekNumber"
+        [currentWeekNumber]="stream.currentWeekNumber"
+        [title]="stream.title"
+        (weekNumberOutPut)="loadWeek($event)"
+      ></table-head>
 
-      <div class="shadow p-3 mb-5 bg-white rounded my-2">
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <th>Name</th>
-              <ng-container
-                *ngFor="let match of stream.week.sortedMatchesToBePlayed"
-              >
-                <th>
-                  <div
-                    class="text-center"
-                    [ngClass]="{
-                      'color-change-title': colorTitleIfHomeCorrect(
-                        match,
-                        stream.week.teamsThatWon
-                      )
-                    }"
-                  >
-                    {{ match.homeTeam }}
-                  </div>
-                  <div class="text-center small font-weight-bold">vs</div>
-                  <div
-                    class="text-center"
-                    [ngClass]="{
-                      'color-change-title': colorTitleIfAwayCorrect(
-                        match,
-                        stream.week.teamsThatWon
-                      )
-                    }"
-                  >
-                    {{ match.awayTeam }}
-                  </div>
-                </th>
-              </ng-container>
-              <th>Score</th>
-            </thead>
-            <tbody>
-              <tr *ngFor="let user of stream.paginatedUsers">
-                <td class="font-italic">{{ user.name }}</td>
-                <ng-container *ngFor="let game of user.teamsSelected">
-                  <td
-                    class="text-center"
-                    [ngClass]="{
-                      'color-change': colorIfCorrect(
-                        game,
-                        stream.week.teamsThatWon
-                      )
-                    }"
-                  >
-                    {{ game.team }}
-                  </td>
-                </ng-container>
-                <td>{{ user.weeksScore }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <ng-container *ngIf="stream.week.beforeDeadLine; else paginate">
-          <div class="text-center my-1">
-            <small class="text-success"
-              >You can change picks up until deadline</small
-            >
-
-            <br />
-            <small class="text-success"
-              >You will be able to see other members' picks after
-              deadline.</small
-            >
-            <br />
-            <a
-              type="button"
-              class="btn btn-info btn-sm my-1"
-              routerLink="/make-pick"
-              >Change Picks</a
-            >
-          </div>
-        </ng-container>
-        <ng-template #paginate>
-          <div class="d-flex justify-content-between p-2">
-            <ngb-pagination
-              class="d-flex justify-content-center"
-              [collectionSize]="paginationService.collectionSize"
-              [(page)]="paginationService.page"
-              [maxSize]="4"
-              [rotate]="true"
-              [ellipses]="false"
-              [pageSize]="paginationService.pageSize"
-              size="sm"
-            >
-            </ngb-pagination>
-
-            <select
-              class="form-control form-control-sm"
-              style="width: auto;"
-              [(ngModel)]="paginationService.pageSize"
-            >
-              <option [ngValue]="2">2 per page</option>
-              <option [ngValue]="5">5 per page</option>
-              <ng-container *ngIf="paginationService.collectionSize > 5">
-                <option [ngValue]="10">10 per page</option>
-              </ng-container>
-              <ng-container *ngIf="paginationService.collectionSize > 10">
-                <option [ngValue]="20">20 per page</option>
-              </ng-container>
-            </select>
-          </div>
-        </ng-template>
-      </div>
-    </ng-container>
-    <ng-template #error>
-      <div class="alert alert-danger text-center mt-4">
-        <span class="text-center">{{ stream.error }}</span>
-      </div>
-      <div class="button-group text-center">
-        <button
-          *ngIf="weekNumber > 1"
-          class="btn btn-danger mx-4"
-          type="button "
-          (click)="errorLoadWeekBefore(weekNumber - 1)"
-        >
-          Previous week
-        </button>
-
-        <button class="btn btn-danger" type="button " (click)="makePick()">
-          Tip Now
-        </button>
-      </div>
+      <pick-table
+        [week]="stream.week"
+        [paginatedUsers]="stream.paginatedUsers"
+      ></pick-table>
     </ng-template>
   </div>
 
   <ng-template #loadingOrError>
     <ng-container *ngIf="errorSubject$ | async as error; else loading">
-      <div class="alert alert-danger text-center mt-4">
-        <span class="text-center">{{ error }}</span>
-      </div>
-      <div class="button-group text-center">
-        <button
-          *ngIf="weekNumber > 1"
-          class="btn btn-danger mx-4"
-          type="button "
-          (click)="errorLoadWeekBefore(weekNumber - 1)"
-        >
-          Previous week
-        </button>
-
-        <button class="btn btn-danger" type="button " (click)="makePick()">
-          Tip Now
-        </button>
-      </div>
+      <app-error
+        [childError]="error"
+        [childWeekNumber]="weekNumber"
+        (chilNo)="errorLoadWeekBefore($event)"
+      ></app-error>
     </ng-container>
+
     <ng-template #loading>
-      <div class="d-flex justify-content-center my-5">
-        <div class="spinner-border text-info" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
+      <spinner></spinner>
     </ng-template>
   </ng-template>
 </div>

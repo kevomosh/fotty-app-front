@@ -11,6 +11,7 @@ import {
   NgbPaginationModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { FilterComponent } from './filter/filter.component';
+import { SpinnerComponent } from './spinner/spinner.component';
 
 const bootStrapModules = [
   NgbAlertModule,
@@ -23,7 +24,7 @@ const bootStrapModules = [
 ];
 
 @NgModule({
-  declarations: [FilterComponent],
+  declarations: [FilterComponent, SpinnerComponent],
   imports: [
     CommonModule,
     HttpClientModule,
@@ -38,6 +39,7 @@ const bootStrapModules = [
     ReactiveFormsModule,
     bootStrapModules,
     FilterComponent,
+    SpinnerComponent,
   ],
 })
 export class SharedModule {}

@@ -35,7 +35,7 @@ export class PaginationService {
   }
 
   get collectionSize() {
-    return this.collectionSize$.getValue();
+    return this.collectionSize$.asObservable();
   }
 
   set page(i: number) {

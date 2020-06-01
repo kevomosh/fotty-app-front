@@ -1,0 +1,28 @@
+<!-- <div class="d-flex justify-content-between p-2">
+  <ngb-pagination
+    class="d-flex justify-content-center"
+    [collectionSize]="paginationService.collectionSize"
+    [(page)]="paginationService.page"
+    [maxSize]="4"
+    [rotate]="true"
+    [ellipses]="false"
+    [pageSize]="paginationService.pageSize"
+    size="sm"
+  >
+  </ngb-pagination>
+
+  <select
+    class="form-control form-control-sm"
+    style="width: auto;"
+    [(ngModel)]="paginationService.pageSize"
+  >
+    <option [ngValue]="2">2 per page</option>
+    <option [ngValue]="5">5 per page</option>
+    <ng-container *ngIf="paginationService.collectionSize > 5">
+      <option [ngValue]="10">10 per page</option>
+    </ng-container>
+    <ng-container *ngIf="paginationService.collectionSize > 10">
+      <option [ngValue]="20">20 per page</option>
+    </ng-container>
+  </select>
+</div> -->

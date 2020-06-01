@@ -14,8 +14,6 @@ import {
 } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import { FilterService } from 'src/app/helper/filter.service';
-import { NewMatchToBePlayed } from 'src/app/interfaces/newMatchToBePlayed';
-import { TeamWonOrSelected } from 'src/app/interfaces/teamWonOrSelected';
 import { LoadingErrorService } from 'src/app/services/loading-error.service';
 import { PaginationService } from 'src/app/services/pagination.service';
 import { PickService } from 'src/app/services/pick.service';
@@ -38,7 +36,7 @@ export class PicksComponent implements OnInit, OnDestroy {
     private weekService: WeekService,
     private filterService: FilterService,
     private router: Router,
-    private loadingErrorService: LoadingErrorService,
+    public loadingErrorService: LoadingErrorService,
     public paginationService: PaginationService
   ) {}
 
@@ -50,9 +48,11 @@ export class PicksComponent implements OnInit, OnDestroy {
 
       mergeMap((weekNumber) => {
         this.filterService.clearAllFilterInputs();
-        this.clearError();
+        this.clearSubjects();
         this.paginationService.resetPage();
+        console.log('reset');
         this.weekNumber = weekNumber;
+
         const week$ = this.weekService.getWeekByWeekNumber(weekNumber);
 
         const allUsers$ = this.pickService.getPicksForTheWeek(weekNumber).pipe(
@@ -66,7 +66,6 @@ export class PicksComponent implements OnInit, OnDestroy {
         const paginatedUsers$ = this.paginationService.paginatedUsers(
           filteredUsers$
         );
-
         const currentWeekNumber$ = this.weekService.weekNumber;
         const title$ = of('Picks For Round ' + weekNumber);
 
@@ -77,12 +76,12 @@ export class PicksComponent implements OnInit, OnDestroy {
           title$,
           this.loadingErrorService.error$,
         ]).pipe(
-          map(([week, paginatedUsers, currentWeekNumber, title, error]) => ({
+          map(([week, paginatedUsers, currentWeekNumber, title, err]) => ({
             week,
             paginatedUsers,
             currentWeekNumber,
             title,
-            error,
+            err,
           })),
           catchError((error) => {
             this.errorSubject$.next(error.error.message);
@@ -93,16 +92,13 @@ export class PicksComponent implements OnInit, OnDestroy {
     );
   }
 
-  clearError() {
+  clearSubjects() {
     this.loadingErrorService.cancelError();
     this.errorSubject$.next('');
   }
 
-  getStreamError$() {
-    return this.loadingErrorService.streamError$;
-  }
-
   errorLoadWeekBefore(weekNumber: number) {
+    this.clearSubjects();
     this.loadWeek(weekNumber);
     this.ngOnInit();
   }
@@ -111,45 +107,9 @@ export class PicksComponent implements OnInit, OnDestroy {
     this.router.navigate(['/picks', weekNumber]);
   }
 
-  makePick() {
-    this.router.navigateByUrl('/make-pick');
-  }
-
-  colorIfCorrect(
-    team: TeamWonOrSelected,
-    teamsThatWon: TeamWonOrSelected[]
-  ): boolean {
-    return teamsThatWon.length > 0
-      ? teamsThatWon.map((e) => e.team).includes(team.team)
-      : false;
-  }
-
-  colorTitleIfHomeCorrect(
-    team: NewMatchToBePlayed,
-    teamsThatWon: TeamWonOrSelected[]
-  ): boolean {
-    return teamsThatWon.length > 0
-      ? teamsThatWon.map((e) => e.team).includes(team.homeTeam)
-      : false;
-  }
-
-  colorTitleIfAwayCorrect(
-    team: NewMatchToBePlayed,
-    teamsThatWon: TeamWonOrSelected[]
-  ): boolean {
-    return teamsThatWon.length > 0
-      ? teamsThatWon.map((e) => e.team).includes(team.awayTeam)
-      : false;
-  }
-
-  // cz(matches: NewMatchToBePlayed[], pickedTeams: TeamWonOrSelected[]) {
-  //   const z = matches.map((item, i) => Object.assign({}, item, pickedTeams[i]));
-  //   console.log(z);
-  //   return z;
-  // }
   ngOnDestroy() {
     this.filterService.clearAllFilterInputs();
-    this.clearError();
+    this.clearSubjects();
     this.paginationService.reset();
   }
 }

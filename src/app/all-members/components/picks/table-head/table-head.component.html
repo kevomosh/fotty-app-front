@@ -1,0 +1,23 @@
+<div class="row my-2">
+  <div class="col">
+    <button
+      *ngIf="weekNumber > 1"
+      type="button"
+      class="btn btn-info"
+      (click)="handleLoadWeek(weekNumber - 1)"
+    >
+      Previous
+    </button>
+  </div>
+  <h5 class="col-4 text-center">{{ title }}</h5>
+  <div class="col">
+    <button
+      *ngIf="weekNumber < currentWeekNumber"
+      type="button"
+      class="btn btn-info float-right"
+      (click)="handleLoadWeek(weekNumber + 1)"
+    >
+      Next
+    </button>
+  </div>
+</div>
