@@ -1,103 +1,99 @@
 <div class="container">
-  <ng-container *ngIf="stream$ | async as stream; else loading">
-    <div class="row">
-      <div class="col-sm-12 col-md-7 mx-auto">
-        <div class="card my-5 shadow-lg p-3 mb-5 bg-white rounded">
-          <div class="card-body text-center">
-            <p class="h4 mb-4">
-              Login
-            </p>
+  <ng-container *ngIf="logInStatus$ | async"></ng-container>
+  <div class="row">
+    <div class="col-sm-12 col-md-7 mx-auto">
+      <div class="card my-5 shadow-lg p-3 mb-5 bg-white rounded">
+        <div class="card-body text-center">
+          <p class="h4 mb-4">
+            Login
+          </p>
 
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-              <div class="form-group">
-                <input
-                  type="email"
-                  class="form-control"
-                  formControlName="email"
-                  placeholder="Enter Email"
-                />
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+              <input
+                type="email"
+                class="form-control"
+                formControlName="email"
+                placeholder="Enter Email"
+              />
 
-                <div
-                  class="mt-1"
-                  *ngIf="
-                    loginForm.get('email').touched &&
-                    loginForm.get('email').errors
-                  "
-                >
-                  <span
-                    *ngIf="loginForm.get('email').hasError('required')"
-                    class="text-danger"
-                    >Email is required</span
-                  >
-                  <span
-                    *ngIf="loginForm.get('email').hasError('email')"
-                    class="text-danger"
-                    >Enter Valid email</span
-                  >
-                </div>
-              </div>
-
-              <div class="form-group">
-                <input
-                  type="password"
-                  class="form-control mt-4"
-                  formControlName="password"
-                  placeholder="Password"
-                />
-
-                <div
-                  class="mt-1"
-                  *ngIf="
-                    loginForm.get('password').touched &&
-                    loginForm.get('password').errors
-                  "
-                >
-                  <span
-                    *ngIf="loginForm.get('password').hasError('required')"
-                    class="text-danger"
-                    >Password is required</span
-                  >
-                  <span
-                    *ngIf="loginForm.get('password').hasError('minlength')"
-                    class="text-danger"
-                    >Must be minimum 5 characters</span
-                  >
-                  <span
-                    *ngIf="loginForm.get('password').hasError('maxlength')"
-                    class="text-danger"
-                    >Must be maximum 20 characters</span
-                  >
-                </div>
-              </div>
-
-              <div>
-                <a routerLink="/forgot-password">Forgot password?</a>
-              </div>
-              <div class="my-2">
-                <loading-error
-                  [loadingMessage]="loggingMessage()"
-                  [errorMessage]="errorMessage()"
-                ></loading-error>
-              </div>
-
-              <button
-                class="btn btn-info btn-block my-4"
-                [disabled]="loginForm.invalid"
+              <div
+                class="mt-1"
+                *ngIf="
+                  loginForm.get('email').touched &&
+                  loginForm.get('email').errors
+                "
               >
-                Sign in
-              </button>
+                <span
+                  *ngIf="loginForm.get('email').hasError('required')"
+                  class="text-danger"
+                  >Email is required</span
+                >
+                <span
+                  *ngIf="loginForm.get('email').hasError('email')"
+                  class="text-danger"
+                  >Enter Valid email</span
+                >
+              </div>
+            </div>
 
-              <p>
-                Not a member?
-                <a routerLink="/register">Register</a>
-              </p>
-            </form>
-          </div>
+            <div class="form-group">
+              <input
+                type="password"
+                class="form-control mt-4"
+                formControlName="password"
+                placeholder="Password"
+              />
+
+              <div
+                class="mt-1"
+                *ngIf="
+                  loginForm.get('password').touched &&
+                  loginForm.get('password').errors
+                "
+              >
+                <span
+                  *ngIf="loginForm.get('password').hasError('required')"
+                  class="text-danger"
+                  >Password is required</span
+                >
+                <span
+                  *ngIf="loginForm.get('password').hasError('minlength')"
+                  class="text-danger"
+                  >Must be minimum 5 characters</span
+                >
+                <span
+                  *ngIf="loginForm.get('password').hasError('maxlength')"
+                  class="text-danger"
+                  >Must be maximum 20 characters</span
+                >
+              </div>
+            </div>
+
+            <div>
+              <a routerLink="/forgot-password">Forgot password?</a>
+            </div>
+            <div class="my-2">
+              <loading-error
+                [loadingMessage]="loggingMessage()"
+                [errorMessage]="errorMessage()"
+              ></loading-error>
+            </div>
+
+            <button
+              class="btn btn-info btn-block my-4"
+              [disabled]="loginForm.invalid"
+            >
+              Sign in
+            </button>
+
+            <p>
+              Not a member?
+              <a routerLink="/register">Register</a>
+            </p>
+          </form>
         </div>
       </div>
     </div>
-  </ng-container>
-  <ng-template #loading>
-    <spinner></spinner>
-  </ng-template>
+  </div>
 </div>

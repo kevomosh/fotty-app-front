@@ -12,6 +12,9 @@ export class FormLoadingErrorComponent {
 
   @Input() loadingMessage: string;
   @Input() errorMessage: string;
+  @Input() streamError: string;
+  streamErrorMessage: string =
+    'Ooooooops Something went wrong, Please try again later';
 
   closeAlert() {
     this.loadingErrorService.cancelError();

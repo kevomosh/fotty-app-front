@@ -6,8 +6,8 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, Subject } from 'rxjs';
-import { map, takeUntil, tap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { LoginInfo } from 'src/app/interfaces/LoginInfo';
 import { AuthService } from 'src/app/services/auth.service';
 import { LoadingErrorService } from 'src/app/services/loading-error.service';
@@ -35,18 +35,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     tap((loggedIn) => {
       if (loggedIn) this.router.navigateByUrl('/results');
     })
-  );
-
-  stream$ = combineLatest([
-    this.logInStatus$,
-    this.loadingErrorService.loading$,
-    this.loadingErrorService.error$,
-  ]).pipe(
-    map(([loginStatus, loading, error]) => ({
-      loginStatus,
-      loading,
-      error,
-    }))
   );
 
   ngOnInit(): void {

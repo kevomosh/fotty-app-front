@@ -30,7 +30,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     private router: Router,
     private groupService: GroupService,
     private fb: FormBuilder,
-    private loadingErrorService: LoadingErrorService
+    public loadingErrorService: LoadingErrorService
   ) {}
 
   groups$: Observable<GroupInfo[]> = this.groupService.getAllGroups();
@@ -41,16 +41,9 @@ export class RegisterComponent implements OnInit, OnDestroy {
     })
   );
 
-  combined$ = combineLatest([
-    this.groups$,
-    this.loadingErrorService.error$,
-    this.loadingErrorService.loading$,
-    this.logInStatus$,
-  ]).pipe(
-    map(([groups, error, loading]) => ({
+  combined$ = combineLatest([this.groups$, this.logInStatus$]).pipe(
+    map(([groups]) => ({
       groups,
-      error,
-      loading,
     })),
     catchError((error) => {
       this.loadingErrorService.setStreamError(error);
@@ -102,7 +95,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     this.loadingErrorService.startLoading();
-    this.closeAlert();
+    this.loadingErrorService.cancelError();
 
     let details = this.registerForm.value;
     const registerInfo: RegisterInfo = {
@@ -135,13 +128,10 @@ export class RegisterComponent implements OnInit, OnDestroy {
     });
   }
 
-  getStreamError() {
-    return this.loadingErrorService.streamError$;
+  loadingMessage(): string {
+    return 'Processing your Request....';
   }
 
-  closeAlert() {
-    this.loadingErrorService.cancelError();
-  }
   ngOnDestroy() {
     this.loadingErrorService.cancelLoadingAndError();
     this.destroy.next();
