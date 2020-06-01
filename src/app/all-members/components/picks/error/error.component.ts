@@ -6,7 +6,6 @@ import {
   Output,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-error',
@@ -15,7 +14,6 @@ import { Observable } from 'rxjs';
   styleUrls: ['./error.component.css'],
 })
 export class ErrorComponent {
-  @Input() childError$: Observable<string>;
   @Input() childError: string;
   @Input() childWeekNumber: number;
 

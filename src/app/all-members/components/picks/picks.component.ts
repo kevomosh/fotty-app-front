@@ -36,8 +36,8 @@ export class PicksComponent implements OnInit, OnDestroy {
     private weekService: WeekService,
     private filterService: FilterService,
     private router: Router,
-    public loadingErrorService: LoadingErrorService,
-    public paginationService: PaginationService
+    private loadingErrorService: LoadingErrorService,
+    private paginationService: PaginationService
   ) {}
 
   ngOnInit(): void {

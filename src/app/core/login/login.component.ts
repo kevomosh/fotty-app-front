@@ -68,7 +68,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     this.loadingErrorService.startLoading();
-    this.closeAlert();
+    this.loadingErrorService.cancelError();
 
     const loginInfo: LoginInfo = {
       email: this.loginForm.value.email,
@@ -92,13 +92,17 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loginForm.reset();
   }
 
-  closeAlert() {
-    this.loadingErrorService.cancelError();
-  }
-
   ngOnDestroy() {
     this.loadingErrorService.cancelLoadingAndError();
     this.destroy.next();
     this.destroy.complete();
+  }
+
+  loggingMessage(): string {
+    return 'Logging you in';
+  }
+
+  errorMessage(): string {
+    return '!!!!. Please try again';
   }
 }

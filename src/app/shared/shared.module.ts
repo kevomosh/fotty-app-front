@@ -11,6 +11,7 @@ import {
   NgbPaginationModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { FilterComponent } from './filter/filter.component';
+import { FormLoadingErrorComponent } from './form-loading-error/form-loading-error.component';
 import { SpinnerComponent } from './spinner/spinner.component';
 
 const bootStrapModules = [
@@ -24,7 +25,7 @@ const bootStrapModules = [
 ];
 
 @NgModule({
-  declarations: [FilterComponent, SpinnerComponent],
+  declarations: [FilterComponent, SpinnerComponent, FormLoadingErrorComponent],
   imports: [
     CommonModule,
     HttpClientModule,
@@ -40,6 +41,7 @@ const bootStrapModules = [
     bootStrapModules,
     FilterComponent,
     SpinnerComponent,
+    FormLoadingErrorComponent,
   ],
 })
 export class SharedModule {}

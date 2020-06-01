@@ -1,0 +1,13 @@
+<ng-container *ngIf="loadingErrorService.loading$ | async">
+  <div class="alert alert-info text-center text-dark">
+    {{ loadingMessage }}
+  </div>
+</ng-container>
+<ng-container *ngIf="loadingErrorService.error$ | async as error">
+  <ngb-alert [type]="'danger'" (close)="closeAlert()"
+    >{{ error }}
+    <ng-container *ngIf="errorMessage">{{
+      errorMessage
+    }}</ng-container></ngb-alert
+  >
+</ng-container>

@@ -1,19 +1,17 @@
-<ng-container *ngIf="childError">
-  <div class="alert alert-danger text-center mt-4">
-    <span class="text-center">{{ childError }} </span>
-  </div>
-  <div class="button-group text-center">
-    <button
-      *ngIf="childWeekNumber > 1"
-      class="btn btn-danger mx-4"
-      type="button "
-      (click)="handleErrorLoadWeekBefore(childWeekNumber)"
-    >
-      Previous week
-    </button>
+<div class="alert alert-danger text-center mt-4">
+  <span class="text-center">{{ childError }} </span>
+</div>
+<div class="button-group text-center">
+  <button
+    *ngIf="childWeekNumber > 1"
+    class="btn btn-danger mx-4"
+    type="button "
+    (click)="handleErrorLoadWeekBefore(childWeekNumber)"
+  >
+    Previous week
+  </button>
 
-    <button class="btn btn-danger" type="button " (click)="makePick()">
-      Tip Now
-    </button>
-  </div>
-</ng-container>
+  <button class="btn btn-danger" type="button " (click)="makePick()">
+    Tip Now
+  </button>
+</div>
