@@ -13,7 +13,7 @@
 </ng-container>
 
 <ng-container *ngIf="streamError">
-  <ngb-alert class="text-center mt-4" [type]="'danger'"
-    >{{ streamError }} {{ streamErrorMessage }}</ngb-alert
-  >
+  <ngb-alert class="text-center mt-4" [type]="'danger'">
+    {{ streamErrorMessage }} {{ " " + streamError }}
+  </ngb-alert>
 </ng-container>

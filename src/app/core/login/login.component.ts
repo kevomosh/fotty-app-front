@@ -81,7 +81,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.loadingErrorService.cancelLoadingAndError();
     this.destroy.next();
     this.destroy.complete();
   }

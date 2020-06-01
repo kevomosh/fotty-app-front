@@ -152,18 +152,10 @@
                   Add Match
                 </button>
               </div>
-              <ng-container *ngIf="stream.loading">
-                <div class="alert alert-warning text-center">loading.....</div>
-              </ng-container>
 
-              <ng-container *ngIf="stream.error">
-                <ngb-alert
-                  class="text-center"
-                  type="danger"
-                  (close)="closeMessages()"
-                  >{{ stream.error }}</ngb-alert
-                >
-              </ng-container>
+              <loading-error
+                [loadingMessage]="loadingMessage()"
+              ></loading-error>
 
               <div class="form-group">
                 <button
@@ -180,15 +172,16 @@
     </div>
   </div>
   <ng-template #loadingOrError>
-    <ng-container *ngIf="getStreamError$() | async as error; else loading">
-      <ngb-alert class="text-center" type="danger">{{ error }}</ngb-alert>
+    <ng-container
+      *ngIf="
+        loadingErrorService.streamError$ | async as streamError;
+        else loading
+      "
+    >
+      <loading-error [streamError]="streamError"></loading-error>
     </ng-container>
     <ng-template #loading>
-      <div class="d-flex justify-content-center my-5">
-        <div class="spinner-border text-info" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
+      <spinner></spinner>
     </ng-template>
   </ng-template>
 </div>

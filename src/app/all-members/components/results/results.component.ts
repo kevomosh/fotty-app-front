@@ -15,7 +15,7 @@ export class ResultsComponent implements OnDestroy {
   constructor(
     private weekService: WeekService,
     private filterService: FilterService,
-    private loadingErrorService: LoadingErrorService
+    public loadingErrorService: LoadingErrorService
   ) {}
 
   weekNumberString$ = this.weekService
@@ -36,10 +36,6 @@ export class ResultsComponent implements OnDestroy {
       return throwError(error);
     })
   );
-
-  getStreamError$() {
-    return this.loadingErrorService.streamError$;
-  }
 
   ngOnDestroy() {
     this.filterService.clearAllFilterInputs();

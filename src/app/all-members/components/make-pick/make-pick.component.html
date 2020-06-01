@@ -1,20 +1,18 @@
 <div class="container">
-  <div *ngIf="stream$ | async as stream; else loadingOrError">
-    <h3 class="text-center mt-2">
-      Tips For Round {{ stream.week.weekNumber }}
-    </h3>
+  <div *ngIf="week$ | async as week; else loadingOrError">
+    <h3 class="text-center mt-2">Tips For Round {{ week.weekNumber }}</h3>
     <h6 class="text-center">
       Deadline is at
-      {{ stream.week.deadLineInstant | date: "dd-MM-yyyy HH:mm:ss" }}
+      {{ week.deadLineInstant | date: "dd-MM-yyyy HH:mm:ss" }}
     </h6>
 
-    <div *ngIf="!stream.week.beforeDeadLine; else before" class="text-center">
+    <div *ngIf="!week.beforeDeadLine; else before" class="text-center">
       <div class="alert alert-danger">
         Its past the deadline. No more picks allowed.
       </div>
       <button
         class="btn btn-danger mb-1"
-        [routerLink]="['/picks', stream.week.weekNumber]"
+        [routerLink]="['/picks', week.weekNumber]"
       >
         Weekly Picks
       </button>
@@ -63,20 +61,8 @@
           </div>
         </div>
 
-        <ng-container *ngIf="stream.loading">
-          <div class="alert alert-info text-center text-dark">
-            Processing your pick, just relax.....
-          </div>
-        </ng-container>
+        <loading-error [loadingMessage]="loadingMessage()"></loading-error>
 
-        <ng-container *ngIf="stream.error">
-          <ngb-alert
-            class="text-center"
-            type="danger"
-            (close)="closeMessages()"
-            >{{ stream.error }}</ngb-alert
-          >
-        </ng-container>
         <button
           class="btn btn-primary btn-block my-3"
           [disabled]="pickForm.invalid"
@@ -93,15 +79,16 @@
     </ng-template>
   </div>
   <ng-template #loadingOrError>
-    <ng-container *ngIf="getStreamError$() | async as error; else loading">
-      <ngb-alert class="text-center" type="danger">{{ error }}</ngb-alert>
+    <ng-container
+      *ngIf="
+        loadingErrorServive.streamError$ | async as streamError;
+        else loading
+      "
+    >
+      <loading-error [streamError]="streamError"></loading-error>
     </ng-container>
     <ng-template #loading>
-      <div class="d-flex justify-content-center my-5">
-        <div class="spinner-border text-info" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
+      <spinner></spinner>
     </ng-template>
   </ng-template>
 </div>

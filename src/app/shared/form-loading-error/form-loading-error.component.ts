@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnDestroy,
+} from '@angular/core';
 import { LoadingErrorService } from 'src/app/services/loading-error.service';
 
 @Component({
@@ -7,7 +12,7 @@ import { LoadingErrorService } from 'src/app/services/loading-error.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./form-loading-error.component.css'],
 })
-export class FormLoadingErrorComponent {
+export class FormLoadingErrorComponent implements OnDestroy {
   constructor(public loadingErrorService: LoadingErrorService) {}
 
   @Input() loadingMessage: string;
@@ -18,5 +23,9 @@ export class FormLoadingErrorComponent {
 
   closeAlert() {
     this.loadingErrorService.cancelError();
+  }
+
+  ngOnDestroy() {
+    this.loadingErrorService.cancelLoadingAndError();
   }
 }

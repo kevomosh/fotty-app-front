@@ -6,8 +6,8 @@ import {
 } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { combineLatest, Subject, throwError } from 'rxjs';
-import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Subject, throwError } from 'rxjs';
+import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { NewMatchToBePlayed } from 'src/app/interfaces/newMatchToBePlayed';
 import { PickInfo } from 'src/app/interfaces/pickInfo';
 import { WeekInfo } from 'src/app/interfaces/weekInfo';
@@ -29,7 +29,7 @@ export class MakePickComponent implements OnInit, OnDestroy {
     private pickService: PickService,
     private fb: FormBuilder,
     private router: Router,
-    private loadingErrorServive: LoadingErrorService
+    public loadingErrorServive: LoadingErrorService
   ) {}
 
   pickForm: FormGroup;
@@ -49,19 +49,7 @@ export class MakePickComponent implements OnInit, OnDestroy {
           this.controls = this.teamsSelectedArrayControls();
         })
       )
-    )
-  );
-
-  stream$ = combineLatest([
-    this.week$,
-    this.loadingErrorServive.loading$,
-    this.loadingErrorServive.error$,
-  ]).pipe(
-    map(([week, loading, error]) => ({
-      week,
-      loading,
-      error,
-    })),
+    ),
     catchError((error) => {
       this.loadingErrorServive.setStreamError(error);
       return throwError(error);
@@ -98,7 +86,7 @@ export class MakePickComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     this.loadingErrorServive.startLoading();
-    this.closeMessages();
+    this.loadingErrorServive.cancelError();
     const result = this.pickForm.value;
 
     const pickInfo: PickInfo = {
@@ -125,16 +113,11 @@ export class MakePickComponent implements OnInit, OnDestroy {
       );
   }
 
-  closeMessages() {
-    this.loadingErrorServive.cancelError();
-  }
-
-  getStreamError$() {
-    return this.loadingErrorServive.streamError$;
+  loadingMessage(): string {
+    return 'Processing your pick, just relax.....';
   }
 
   ngOnDestroy() {
-    this.loadingErrorServive.cancelLoadingAndError();
     this.destroy.next();
     this.destroy.unsubscribe();
   }

@@ -24,7 +24,7 @@ export class AddGamesComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private weekService: WeekService,
     private router: Router,
-    private loadingErrorService: LoadingErrorService
+    public loadingErrorService: LoadingErrorService
   ) {}
 
   private onStop: Subject<void> = new Subject<void>();
@@ -39,17 +39,10 @@ export class AddGamesComponent implements OnInit, OnDestroy {
 
   allTeams$ = this.teamService.getAllteams();
 
-  combinedStream$ = combineLatest([
-    this.availabeWeeks$,
-    this.allTeams$,
-    this.loadingErrorService.error$,
-    this.loadingErrorService.loading$,
-  ]).pipe(
-    map(([availableWeekMessage, allTeams, error, loading]) => ({
+  combinedStream$ = combineLatest([this.availabeWeeks$, this.allTeams$]).pipe(
+    map(([availableWeekMessage, allTeams]) => ({
       availableWeekMessage,
       allTeams,
-      error,
-      loading,
     })),
     catchError((error) => {
       this.loadingErrorService.setStreamError(error);
@@ -122,17 +115,12 @@ export class AddGamesComponent implements OnInit, OnDestroy {
     this.groupFormArray().removeAt(index);
   }
 
-  getStreamError$() {
-    return this.loadingErrorService.streamError$;
-  }
-
-  closeMessages() {
-    this.loadingErrorService.cancelError();
+  loadingMessage(): string {
+    return 'loading.......';
   }
 
   ngOnDestroy() {
     this.onStop.next();
     this.onStop.complete();
-    this.loadingErrorService.cancelLoadingAndError();
   }
 }

@@ -6,8 +6,8 @@ import {
 } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { combineLatest, Subject, throwError } from 'rxjs';
-import { catchError, map, takeUntil, tap } from 'rxjs/operators';
+import { Subject, throwError } from 'rxjs';
+import { catchError, takeUntil, tap } from 'rxjs/operators';
 import { NewMatchToBePlayed } from 'src/app/interfaces/newMatchToBePlayed';
 import { WeekInfo } from 'src/app/interfaces/weekInfo';
 import { LoadingErrorService } from 'src/app/services/loading-error.service';
@@ -24,7 +24,7 @@ export class PostResultsComponent implements OnInit, OnDestroy {
     private weekService: WeekService,
     private fb: FormBuilder,
     private router: Router,
-    private loadingErrorService: LoadingErrorService
+    public loadingErrorService: LoadingErrorService
   ) {}
 
   resultForm: FormGroup;
@@ -37,24 +37,28 @@ export class PostResultsComponent implements OnInit, OnDestroy {
       this.weekNumber = week.weekNumber;
       this.upDateForm(week);
       this.controls = this.teamsThatWonArrayControls();
-    })
-  );
-
-  stream$ = combineLatest([
-    this.week$,
-    this.loadingErrorService.error$,
-    this.loadingErrorService.loading$,
-  ]).pipe(
-    map(([week, error, loading]) => ({
-      week,
-      error,
-      loading,
-    })),
+    }),
     catchError((error) => {
       this.loadingErrorService.setStreamError(error);
       return throwError(error);
     })
   );
+
+  // stream$ = combineLatest([
+  //   this.week$,
+  //   this.loadingErrorService.error$,
+  //   this.loadingErrorService.loading$,
+  // ]).pipe(
+  //   map(([week, error, loading]) => ({
+  //     week,
+  //     error,
+  //     loading,
+  //   })),
+  //   catchError((error) => {
+  //     this.loadingErrorService.setStreamError(error);
+  //     return throwError(error);
+  //   })
+  // );
 
   ngOnInit(): void {
     this.resultForm = this.fb.group({
@@ -130,16 +134,11 @@ export class PostResultsComponent implements OnInit, OnDestroy {
     return (<FormArray>this.resultForm.get('weeksResult')).controls;
   }
 
-  closeMessages() {
-    this.loadingErrorService.cancelError();
-  }
-
-  getStreamError$() {
-    return this.loadingErrorService.streamError$;
+  loadingMessage(): string {
+    return 'Loading......';
   }
 
   ngOnDestroy() {
-    this.loadingErrorService.cancelLoadingAndError();
     this.destroy.next();
     this.destroy.unsubscribe();
   }
