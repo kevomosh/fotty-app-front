@@ -47,6 +47,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     })),
     catchError((error) => {
       this.loadingErrorService.setStreamError(error);
+
       return throwError(error);
     })
   );

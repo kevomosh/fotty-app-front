@@ -6,8 +6,8 @@ import {
 } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { combineLatest, Subject, throwError } from 'rxjs';
-import { catchError, map, takeUntil } from 'rxjs/operators';
+import { Subject, throwError } from 'rxjs';
+import { catchError, takeUntil } from 'rxjs/operators';
 import { GroupService } from 'src/app/services/group.service';
 import { LoadingErrorService } from 'src/app/services/loading-error.service';
 import { UserService } from 'src/app/services/user.service';
@@ -24,25 +24,14 @@ export class ChangeGroupComponent implements OnInit, OnDestroy {
     private router: Router,
     private fb: FormBuilder,
     private groupService: GroupService,
-    private loadingErrorService: LoadingErrorService
+    public loadingErrorService: LoadingErrorService
   ) {}
 
   changeForm: FormGroup;
 
   private destroy: Subject<void> = new Subject<void>();
 
-  allGroups$ = this.groupService.getAllGroups();
-
-  stream$ = combineLatest([
-    this.allGroups$,
-    this.loadingErrorService.error$,
-    this.loadingErrorService.loading$,
-  ]).pipe(
-    map(([groups, error, loading]) => ({
-      groups,
-      error,
-      loading,
-    })),
+  allGroups$ = this.groupService.getAllGroups().pipe(
     catchError((error) => {
       this.loadingErrorService.setStreamError(error);
       return throwError(error);
@@ -61,10 +50,6 @@ export class ChangeGroupComponent implements OnInit, OnDestroy {
     });
   }
 
-  getStreamError$() {
-    return this.loadingErrorService.streamError$;
-  }
-
   addGroupButtonClick(): void {
     (<FormArray>this.changeForm.get('groups')).push(this.addGroupFormGroup());
   }
@@ -79,6 +64,7 @@ export class ChangeGroupComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     this.loadingErrorService.startLoading();
+    this.loadingErrorService.cancelError();
     const details = this.changeForm.value;
     const infoToSend = {
       groups: details.groups,
@@ -99,8 +85,8 @@ export class ChangeGroupComponent implements OnInit, OnDestroy {
       );
   }
 
-  closeMessages() {
-    this.loadingErrorService.cancelError();
+  loadingMessage(): string {
+    return 'Processing......';
   }
 
   ngOnDestroy() {

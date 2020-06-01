@@ -44,22 +44,6 @@ export class PostResultsComponent implements OnInit, OnDestroy {
     })
   );
 
-  // stream$ = combineLatest([
-  //   this.week$,
-  //   this.loadingErrorService.error$,
-  //   this.loadingErrorService.loading$,
-  // ]).pipe(
-  //   map(([week, error, loading]) => ({
-  //     week,
-  //     error,
-  //     loading,
-  //   })),
-  //   catchError((error) => {
-  //     this.loadingErrorService.setStreamError(error);
-  //     return throwError(error);
-  //   })
-  // );
-
   ngOnInit(): void {
     this.resultForm = this.fb.group({
       weeksResult: this.fb.array([]),

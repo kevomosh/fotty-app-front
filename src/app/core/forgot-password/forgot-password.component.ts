@@ -6,8 +6,8 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { combineLatest, Subject, throwError } from 'rxjs';
-import { catchError, map, takeUntil, tap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { LoadingErrorService } from 'src/app/services/loading-error.service';
 
@@ -34,23 +34,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     })
   );
 
-  stream$ = combineLatest([
-    this.loadingErrorService.success$,
-    this.loadingErrorService.error$,
-    this.loadingErrorService.loading$,
-    this.logInStatus$,
-  ]).pipe(
-    map(([success, error, loading]) => ({
-      success,
-      error,
-      loading,
-    })),
-    catchError((error) => {
-      this.loadingErrorService.setStreamError(error);
-      return throwError(error);
-    })
-  );
-
   ngOnInit(): void {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -59,7 +42,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     this.loadingErrorService.startLoading();
-    this.closeError();
+    this.loadingErrorService.cancelError();
 
     const info = {
       email: this.form.value.email,
@@ -82,16 +65,8 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     this.form.reset();
   }
 
-  closeError() {
-    this.loadingErrorService.cancelError();
-  }
-
-  closeSuccess() {
-    this.loadingErrorService.cancelSuccess();
-  }
-
-  getStreamError$() {
-    return this.loadingErrorService.streamError$;
+  loadingMessage(): string {
+    return 'Processing your request...';
   }
 
   ngOnDestroy() {

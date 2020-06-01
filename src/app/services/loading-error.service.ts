@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -11,9 +11,25 @@ export class LoadingErrorService {
   );
   private errorSubject$: BehaviorSubject<string> = new BehaviorSubject('');
   private successSubject$: BehaviorSubject<string> = new BehaviorSubject('');
-  private streamErrorSubject$: Subject<string> = new Subject();
+  private streamError$ = new BehaviorSubject<string>('');
 
   constructor() {}
+
+  setStreamError(error: HttpErrorResponse) {
+    if (error.error.message) {
+      this.streamError$.next(error.error.message);
+    } else {
+      this.streamError$.next('Ooops Something went wrong');
+    }
+  }
+
+  getStreamError() {
+    return this.streamError$.asObservable();
+  }
+
+  cancelStreamError() {
+    this.streamError$.next('');
+  }
 
   startLoading() {
     this.loadingSubject$.next(true);
@@ -61,23 +77,11 @@ export class LoadingErrorService {
     this.errorSubject$.next('');
   }
 
-  cancelStreamError() {
-    this.streamErrorSubject$.next();
-  }
-
   get error$() {
     return this.errorSubject$.asObservable();
   }
 
   setError(res: HttpErrorResponse) {
     this.errorSubject$.next(res.error.message);
-  }
-
-  get streamError$() {
-    return this.streamErrorSubject$.asObservable();
-  }
-
-  setStreamError(res: HttpErrorResponse) {
-    this.streamErrorSubject$.next(res.error.message);
   }
 }

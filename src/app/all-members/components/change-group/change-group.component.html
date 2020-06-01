@@ -1,5 +1,5 @@
 <div class="container">
-  <div class="row" *ngIf="stream$ | async as stream; else loadingOrError">
+  <div class="row" *ngIf="allGroups$ | async as groups; else loadingOrError">
     <div class="col-sm-12 col-md-7 mx-auto">
       <div class="card my-5 shadow-lg p-3 mb-5 bg-white rounded">
         <div class="card-body">
@@ -30,11 +30,9 @@
                         }"
                       >
                         <option selected [ngValue]="null">Choose...</option>
-                        <option
-                          *ngFor="let load of stream.groups"
-                          [value]="load.id"
-                          >{{ load.name }}</option
-                        >
+                        <option *ngFor="let load of groups" [value]="load.id">{{
+                          load.name
+                        }}</option>
                       </select>
                       <span
                         *ngIf="
@@ -75,11 +73,7 @@
               </button>
             </div>
 
-            <ng-container *ngIf="stream.loading">
-              <div class="alert alert-info text-center text-dark">
-                Processing......
-              </div>
-            </ng-container>
+            <loading-error [loadingMessage]="loadingMessage()"></loading-error>
 
             <div class="form-group">
               <button
@@ -89,14 +83,7 @@
                 Make Changes
               </button>
             </div>
-            <ng-container *ngIf="stream.error">
-              <ngb-alert
-                class="text-center"
-                type="danger"
-                (close)="closeMessages()"
-                >{{ stream.error }}</ngb-alert
-              >
-            </ng-container>
+
             <div class="text-center">
               <small>Pick all the groups you would like to be a part of</small>
             </div>
@@ -106,15 +93,6 @@
     </div>
   </div>
   <ng-template #loadingOrError>
-    <ng-container *ngIf="getStreamError$() | async as error; else loading">
-      <ngb-alert class="text-center" type="danger">{{ error }}</ngb-alert>
-    </ng-container>
-    <ng-template #loading>
-      <div class="d-flex justify-content-center my-5">
-        <div class="spinner-border text-info" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
-    </ng-template>
+    <stream-error></stream-error>
   </ng-template>
 </div>

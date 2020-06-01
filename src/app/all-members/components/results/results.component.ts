@@ -15,7 +15,7 @@ export class ResultsComponent implements OnDestroy {
   constructor(
     private weekService: WeekService,
     private filterService: FilterService,
-    public loadingErrorService: LoadingErrorService
+    private loadingErrorService: LoadingErrorService
   ) {}
 
   weekNumberString$ = this.weekService

@@ -23,16 +23,6 @@
   </ng-container>
 
   <ng-template #loadingOrError>
-    <ng-container
-      *ngIf="
-        loadingErrorService.streamError$ | async as streamError;
-        else loading
-      "
-    >
-      <loading-error [streamError]="streamError"></loading-error>
-    </ng-container>
-    <ng-template #loading>
-      <spinner></spinner>
-    </ng-template>
+    <stream-error></stream-error>
   </ng-template>
 </div>

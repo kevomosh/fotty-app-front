@@ -5,15 +5,10 @@ import {
   OnInit,
 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import {
-  BehaviorSubject,
-  combineLatest,
-  Observable,
-  of,
-  throwError,
-} from 'rxjs';
-import { catchError, map, mergeMap } from 'rxjs/operators';
+import { combineLatest, Observable, of, throwError } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { FilterService } from 'src/app/helper/filter.service';
+import { UserResultInfo } from 'src/app/interfaces/userResultInfo';
 import { LoadingErrorService } from 'src/app/services/loading-error.service';
 import { PaginationService } from 'src/app/services/pagination.service';
 import { PickService } from 'src/app/services/pick.service';
@@ -28,7 +23,6 @@ import { WeekService } from 'src/app/services/week.service';
 export class PicksComponent implements OnInit, OnDestroy {
   weekNumber: number;
   stream$: Observable<any>;
-  errorSubject$: BehaviorSubject<string> = new BehaviorSubject('');
 
   constructor(
     private pickService: PickService,
@@ -36,36 +30,23 @@ export class PicksComponent implements OnInit, OnDestroy {
     private weekService: WeekService,
     private filterService: FilterService,
     private router: Router,
-    private loadingErrorService: LoadingErrorService,
+    public loadingErrorService: LoadingErrorService,
     private paginationService: PaginationService
   ) {}
 
   ngOnInit(): void {
     this.stream$ = this.activeRoute.paramMap.pipe(
-      map((routeParam: ParamMap) => {
-        return parseInt(routeParam.get('weekNumber'));
-      }),
-
-      mergeMap((weekNumber) => {
+      switchMap((routeParam: ParamMap) => {
+        const weekNumber = parseInt(routeParam.get('weekNumber'));
         this.filterService.clearAllFilterInputs();
         this.clearSubjects();
+
         this.paginationService.resetPage();
-        console.log('reset');
         this.weekNumber = weekNumber;
 
         const week$ = this.weekService.getWeekByWeekNumber(weekNumber);
 
-        const allUsers$ = this.pickService.getPicksForTheWeek(weekNumber).pipe(
-          catchError((error) => {
-            this.loadingErrorService.setError(error);
-            return of([]);
-          })
-        );
-
-        const filteredUsers$ = this.filterService.createFilter(allUsers$);
-        const paginatedUsers$ = this.paginationService.paginatedUsers(
-          filteredUsers$
-        );
+        const paginatedUsers$ = this.getPaginatedUsers(weekNumber);
         const currentWeekNumber$ = this.weekService.weekNumber;
         const title$ = of('Picks For Round ' + weekNumber);
 
@@ -84,7 +65,7 @@ export class PicksComponent implements OnInit, OnDestroy {
             err,
           })),
           catchError((error) => {
-            this.errorSubject$.next(error.error.message);
+            this.loadingErrorService.setStreamError(error);
             return throwError(error);
           })
         );
@@ -92,9 +73,21 @@ export class PicksComponent implements OnInit, OnDestroy {
     );
   }
 
+  getPaginatedUsers(weekNumber: number): Observable<UserResultInfo[]> {
+    const allUsers$ = this.pickService.getPicksForTheWeek(weekNumber).pipe(
+      catchError((error) => {
+        this.loadingErrorService.setError(error);
+        return of([]);
+      })
+    );
+    const filteredUsers$ = this.filterService.createFilter(allUsers$);
+
+    return this.paginationService.paginatedUsers(filteredUsers$);
+  }
+
   clearSubjects() {
     this.loadingErrorService.cancelError();
-    this.errorSubject$.next('');
+    this.loadingErrorService.cancelStreamError();
   }
 
   errorLoadWeekBefore(weekNumber: number) {

@@ -1,19 +1,22 @@
-<ng-container *ngIf="loadingErrorService.loading$ | async">
-  <div class="alert alert-info text-center text-dark">
+<ng-container *ngIf="stream$ | async as stream">
+  <div *ngIf="stream.loading" class="alert alert-info text-center text-dark">
     {{ loadingMessage }}
   </div>
-</ng-container>
-<ng-container *ngIf="loadingErrorService.error$ | async as error">
-  <ngb-alert [type]="'danger'" (close)="closeAlert()"
-    >{{ error }}
-    <ng-container *ngIf="errorMessage">{{
-      errorMessage
-    }}</ng-container></ngb-alert
-  >
-</ng-container>
+  <ng-container *ngIf="stream.error">
+    <ngb-alert [type]="'danger'" (close)="loadingErrorService.cancelError()"
+      >{{ stream.error }}
+      <ng-container *ngIf="errorMessage">{{
+        errorMessage
+      }}</ng-container></ngb-alert
+    >
+  </ng-container>
 
-<ng-container *ngIf="streamError">
-  <ngb-alert class="text-center mt-4" [type]="'danger'">
-    {{ streamErrorMessage }} {{ " " + streamError }}
-  </ngb-alert>
+  <ng-container *ngIf="stream.success">
+    <ngb-alert
+      class="text-center"
+      type="success"
+      (close)="loadingErrorService.cancelSuccess()"
+      >{{ stream.success }}
+    </ngb-alert>
+  </ng-container>
 </ng-container>

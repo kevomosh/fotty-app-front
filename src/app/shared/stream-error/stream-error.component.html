@@ -1,0 +1,13 @@
+<div class="container">
+  <ng-container
+    *ngIf="loadingErrorService.getStreamError() | async as error; else loading"
+  >
+    <div class="alert alert-info text-center text-dark">
+      {{ error }}
+    </div>
+  </ng-container>
+
+  <ng-template #loading>
+    <spinner></spinner>
+  </ng-template>
+</div>

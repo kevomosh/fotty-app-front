@@ -25,7 +25,12 @@
   </div>
 
   <ng-template #loadingOrError>
-    <ng-container *ngIf="errorSubject$ | async as error; else loading">
+    <ng-container
+      *ngIf="
+        loadingErrorService.getStreamError() | async as error;
+        else loading
+      "
+    >
       <app-error
         [childError]="error"
         [childWeekNumber]="weekNumber"

@@ -7,7 +7,7 @@ import {
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest, Subject, throwError } from 'rxjs';
-import { catchError, map, takeUntil, tap } from 'rxjs/operators';
+import { catchError, takeUntil, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { LoadingErrorService } from 'src/app/services/loading-error.service';
 import { MustMatch } from '../helper/mustMatchValidator';
@@ -46,16 +46,7 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     })
   );
 
-  stream$ = combineLatest([
-    this.loadingErrorService.error$,
-    this.loadingErrorService.loading$,
-    this.params$,
-    this.loginStatus$,
-  ]).pipe(
-    map(([error, loading]) => ({
-      error,
-      loading,
-    })),
+  stream$ = combineLatest([this.params$, this.loginStatus$]).pipe(
     catchError((error) => {
       this.loadingErrorService.setStreamError(error);
       return throwError(error);
@@ -79,10 +70,6 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
         validator: MustMatch('password', 'cpassword'),
       }
     );
-  }
-
-  closeMessage() {
-    this.loadingErrorService.cancelError();
   }
 
   onSubmit() {
@@ -114,8 +101,8 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     this.resetForm.reset();
   }
 
-  getStreamError$() {
-    return this.loadingErrorService.streamError$;
+  loadingMessage(): string {
+    return 'Trying to change your password......';
   }
 
   ngOnDestroy() {

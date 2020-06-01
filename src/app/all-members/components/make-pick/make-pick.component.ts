@@ -29,7 +29,7 @@ export class MakePickComponent implements OnInit, OnDestroy {
     private pickService: PickService,
     private fb: FormBuilder,
     private router: Router,
-    public loadingErrorServive: LoadingErrorService
+    private loadingErrorServive: LoadingErrorService
   ) {}
 
   pickForm: FormGroup;

@@ -13,6 +13,7 @@ import {
 import { FilterComponent } from './filter/filter.component';
 import { FormLoadingErrorComponent } from './form-loading-error/form-loading-error.component';
 import { SpinnerComponent } from './spinner/spinner.component';
+import { StreamErrorComponent } from './stream-error/stream-error.component';
 
 const bootStrapModules = [
   NgbAlertModule,
@@ -25,7 +26,12 @@ const bootStrapModules = [
 ];
 
 @NgModule({
-  declarations: [FilterComponent, SpinnerComponent, FormLoadingErrorComponent],
+  declarations: [
+    FilterComponent,
+    SpinnerComponent,
+    FormLoadingErrorComponent,
+    StreamErrorComponent,
+  ],
   imports: [
     CommonModule,
     HttpClientModule,
@@ -42,6 +48,7 @@ const bootStrapModules = [
     FilterComponent,
     SpinnerComponent,
     FormLoadingErrorComponent,
+    StreamErrorComponent,
   ],
 })
 export class SharedModule {}

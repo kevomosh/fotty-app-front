@@ -4,6 +4,8 @@ import {
   Input,
   OnDestroy,
 } from '@angular/core';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { LoadingErrorService } from 'src/app/services/loading-error.service';
 
 @Component({
@@ -17,13 +19,18 @@ export class FormLoadingErrorComponent implements OnDestroy {
 
   @Input() loadingMessage: string;
   @Input() errorMessage: string;
-  @Input() streamError: string;
-  streamErrorMessage: string =
-    'Ooooooops Something went wrong, Please try again later';
 
-  closeAlert() {
-    this.loadingErrorService.cancelError();
-  }
+  stream$ = combineLatest([
+    this.loadingErrorService.loading$,
+    this.loadingErrorService.error$,
+    this.loadingErrorService.success$,
+  ]).pipe(
+    map(([loading, error, success]) => ({
+      loading,
+      error,
+      success,
+    }))
+  );
 
   ngOnDestroy() {
     this.loadingErrorService.cancelLoadingAndError();
